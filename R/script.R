@@ -9,8 +9,21 @@ common_install_paths <- list(
     windows = c() # does windows even work with this?
 )
 
-#' WORK IN PROGRESS
-#' @param install_folder folder (in PATH) to install hotwater
+#' Install global hotwater script
+#'
+#' If hotwater is installed, users may run `hotwater` from the command line
+#' rather than from an R terminal.
+#'
+#' @param install_folder \[default "~/.local/bin/"] folder to install hotwater
+#' script into. To run as expected, make sure that the folder supplied is on your
+#' `PATH` envar.
+#' @seealso [hotwater::uninstall_hotwater]
+#' @examples
+#' if (interactive()) {
+#'  hotwater::install_hotwater()
+#' }
+#' @return NULL
+#'
 #' @export
 install_hotwater <- function(install_folder = "~/.local/bin/") {
     p <- file.path(install_folder, "hotwater")
@@ -31,8 +44,16 @@ install_hotwater <- function(install_folder = "~/.local/bin/") {
     }
 }
 
-#' WORK IN PROGRESS
-#' @param install_folder folder (in PATH) to uninstall hotwater
+#' Uninstall global hotwater script
+#'
+#' @param install_folder \[default "~/.local/bin/"] folder to uninstall hotwater
+#' from.
+#' @examples
+#' if (interactive()) {
+#'     hotwater::uninstall_hotwater()
+#' }
+#' @seealso [hotwater::install_hotwater]
+#' @return NULL
 #' @export
 uninstall_hotwater <- function(install_folder = "~/.local/bin/") {
     p <- file.path(install_folder, "hotwater")
@@ -50,7 +71,7 @@ uninstall_hotwater <- function(install_folder = "~/.local/bin/") {
 
 #' Check suggested packages for CLI usage
 #'
-#' The {docopt} and {remotes} packages are required to run hotwater from the command line.
+#' The {docopt} package is required to run hotwater from the command line.
 #'
 #' @noRd
 check_suggests <- function() {
@@ -68,13 +89,33 @@ check_suggests <- function() {
     }
 }
 
-#' Run hotwater as a bash script
-#' @noRd
+#' @title Run hotwater from the command line
+#'
+#' @description
+#' Following [hotwater::install_hotwater()], the `hotwater` command can be used
+#' to run a hotwater engine straight from the terminal. See
+#' [hotwater::run()] for further details on default values.
+#'
+#' `hotwater -v` will provide the current version of hotwater.
+#' `hotwater -h` will provide help text.
+#'
+#' @usage hotwater [args]
+#' @param -f plumber file
+#' @param -d extra directories
+#' @param -p plumber port
+#' @param -h show help
+#' @param --host plumber host
+#' @seealso [hotwater::run]
+#' @examples
+#' ```sh
+#' hotwater -f path/to/app.R -p 9999
+#' ```
+#' @rdname cli
 run_cli <- function() {
     doc <- "hotwater
 
     Usage:
-        hotwater --file=FILE [--dirs=DIRS] [--port=PORT] [--host=SERVER]
+        hotwater --file=FILE [--dirs=DIRS] [--port=PORT] [--host=HOST]
         hotwater -h | --help
         hotwater -v | --version
 
@@ -84,7 +125,7 @@ run_cli <- function() {
         -f FILE --file=FILE         plumber path (required)
         -d DIRS --dirs=DIRS         extra directories
         -p PORT --port=PORT         plumber port
-        -s SERVER --server=SERVER   plumber host
+        --host=HOST                 plumber host
     "
 
     args <- docopt::docopt(
@@ -96,6 +137,6 @@ run_cli <- function() {
         path = args$file,
         dirs = args$dirs,
         port = if (is.null(args$port)) NULL else as.numeric(args$port),
-        host = args$server
+        host = args$host
     )
 }

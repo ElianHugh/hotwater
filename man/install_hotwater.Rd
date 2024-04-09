@@ -2,13 +2,24 @@
 % Please edit documentation in R/script.R
 \name{install_hotwater}
 \alias{install_hotwater}
-\title{WORK IN PROGRESS}
+\title{Install global hotwater script}
 \usage{
 install_hotwater(install_folder = "~/.local/bin/")
 }
 \arguments{
-\item{install_folder}{folder (in PATH) to install hotwater}
+\item{install_folder}{[default "~/.local/bin/"] folder to install hotwater
+script into. To run as expected, make sure that the folder supplied is on your
+\code{PATH} envar.}
 }
 \description{
-WORK IN PROGRESS
+If hotwater is installed, users may run \code{hotwater} from the command line
+rather than from an R terminal.
+}
+\examples{
+if (interactive()) {
+ hotwater::install_hotwater()
+}
+}
+\seealso{
+\link{uninstall_hotwater}
 }
