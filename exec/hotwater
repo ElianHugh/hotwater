@@ -1,0 +1,9 @@
+#!/usr/bin/env Rscript
+
+if (!requireNamespace("hotwater", quietly = TRUE)) {
+    cli::cli_inform("Bootstrapping hotwater...")
+    remotes::install_github("ElianHugh/hotwater")
+}
+
+hotwater:::check_suggests()
+hotwater:::run_cli()

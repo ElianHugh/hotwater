@@ -1,0 +1,9 @@
+linters: linters_with_defaults(
+  line_length_linter(120),
+  implicit_integer_linter(),
+  indentation_linter(indent = 4L),
+  object_name_linter(styles = c("snake_case", "symbols"), regexes = character()),
+  object_name_linter = NULL
+  )
+exclusions: list("man/", "inst/", "src/", ".vscode/", ".Rproj.user/", "R/import-standalone-obj-type.R", "R/import-standalone-types-check.R")
+encoding: "UTF-8"
