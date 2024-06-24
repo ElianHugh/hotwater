@@ -50,3 +50,5 @@ rsconnect/
 
 # debug files
 .fuse_hidden*
+altdoc/freeze.rds
+^_quarto$

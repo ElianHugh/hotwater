@@ -1,0 +1,27 @@
+project:
+  type: website
+website:
+  title: hotwater
+  navbar:
+    search: true
+    right:
+      - icon: github
+        href: https://github.com/ElianHugh/hotwater
+        aria-label: hotwater GitHub
+  sidebar:
+    collapse-level: 1
+    contents:
+      - text: Home
+        file: index.qmd
+      - section: Reference
+        contents:
+          - text: install_hotwater
+            file: man/install_hotwater.qmd
+          - text: run
+            file: man/run.qmd
+          - text: uninstall_hotwater
+            file: man/uninstall_hotwater.qmd
+      - text: License
+        file: LICENSE.md
+      - text: Citation
+        file: CITATION.md

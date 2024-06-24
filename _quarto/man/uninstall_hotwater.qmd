@@ -1,0 +1,25 @@
+
+## WORK IN PROGRESS {.unnumbered}
+
+
+### Description
+
+WORK IN PROGRESS
+
+
+
+### Usage
+
+<pre><code class='language-R'>uninstall_hotwater(install_folder = "~/.local/bin/")
+</code></pre>
+
+
+### Arguments
+
+<table>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="install_folder">install_folder</code></td>
+<td>
+folder (in PATH) to uninstall hotwater
+</td></tr>
+</table>
+

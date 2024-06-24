@@ -1,0 +1,58 @@
+## Start hotwater engine {.unnumbered}
+
+
+### Description
+
+Start a hotwater engine, which launches a plumber API that is restarted whenever
+the plumber API's folder is modified.
+
+Extra directories can be specified to refresh the API when directories other than the plumber folder are modified.
+
+If a plumber endpoint returns an html response, when hotwater refreshes the API, hotwater will also order
+a refresh of any webpage that is using the API.
+
+
+
+### Usage
+
+<pre><code class='language-R'>run(path, dirs = NULL, port = NULL, host = NULL, ignore = NULL)
+</code></pre>
+
+
+### Arguments
+
+<table>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="path">path</code></td>
+<td>
+path to plumber file
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="dirs">dirs</code></td>
+<td>
+extra directories to watch
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="port">port</code></td>
+<td>
+port to launch API on, defaults to <code>httpuv::randomPort()</code>
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="host">host</code></td>
+<td>
+host to launch API on, defaults to &quot;127.0.0.1&quot;
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="ignore">ignore</code></td>
+<td>
+vector of files or file extensions to ignore (globs)
+</td></tr>
+</table>
+
+
+### Examples
+```{r, warning=FALSE, message=FALSE, eval=TRUE}
+library(hotwater)
+
+if (interactive()) {
+ hotwater::run(system.file("examples", "plumber.R", package = "hotwater"))
+}
+
+
+
+```

@@ -11,3 +11,6 @@
 ^\.lintr$
 ^README\.Rmd$
 ^TODO\.md$
+^docs$
+^altdoc$
+^_quarto$
