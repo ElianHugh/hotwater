@@ -50,7 +50,11 @@ publish_browser_reload <- function(engine) {
 is_plumber_running <- function(engine) {
     tryCatch(
         expr = {
-            url <- sprintf("localhost:%s/__hotwater__", engine$config$port)
+            url <- sprintf(
+                "%s:%s/__hotwater__",
+                engine$config$host,
+                engine$config$port
+            )
             res <- httr2::request(url) |>
                 httr2::req_perform() |>
                 httr2::resp_status()

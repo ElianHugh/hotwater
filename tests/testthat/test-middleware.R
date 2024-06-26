@@ -74,9 +74,20 @@ test_that("is_plumber_running works", {
 test_that("autoreloader is attached", {
     engine <- new_test_engine()
     new_runner(engine)
-    resp <- httr2::request(sprintf("localhost:%s", engine$config$port)) |>
-        httr2::req_perform() |>
-        httr2::resp_body_html()
-    expect_true(grepl(resp, pattern = "<script>"))
+    resp <- sprintf("%s:%s", engine$config$host, engine$config$port) |>
+        httr2::request() |>
+        httr2::req_perform()
+    expect_no_error(
+        httr2::resp_check_content_type(
+            resp,
+            valid_types = "text/html"
+        )
+    )
+    expect_true(
+        grepl(
+            httr2::resp_body_string(resp),
+            pattern = "<script>"
+        )
+    )
     cleanup_test_engine(engine)
 })

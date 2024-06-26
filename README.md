@@ -1,18 +1,18 @@
 <!-- @format -->
 
-# hotwater
+# 🌡️💧 hotwater
 
 <!-- badges: start -->
 
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![hotwater status badge](https://elianhugh.r-universe.dev/badges/hotwater)](https://elianhugh.r-universe.dev/hotwater)
 [![Codecov test coverage](https://codecov.io/gh/ElianHugh/hotwater/branch/main/graph/badge.svg)](https://app.codecov.io/gh/ElianHugh/hotwater?branch=main)
 [![R-CMD-check](https://github.com/ElianHugh/hotwater/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ElianHugh/hotwater/actions/workflows/R-CMD-check.yaml)
 
 <!-- badges: end -->
 
-- for plumber development
 - autoreload for plumber
-- also auto-refreshes the browser when a change is made
+- auto-refresh the browser when a change is made
 - run from the commandline with the `/exec/hotwater` bash script
 
 ## Installation

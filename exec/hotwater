@@ -2,7 +2,7 @@
 
 if (!requireNamespace("hotwater", quietly = TRUE)) {
     cli::cli_inform("Bootstrapping hotwater...")
-    remotes::install_github("ElianHugh/hotwater")
+    utils::install.packages("hotwater", repos = "https://elianhugh.r-universe.dev")
 }
 
 hotwater:::check_suggests()
