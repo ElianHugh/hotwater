@@ -1,3 +1,27 @@
+#' @title Run hotwater from the command line
+#'
+#' @description
+#' Following [hotwater::install_hotwater()], the `hotwater` command can be used
+#' to run a hotwater engine straight from the terminal. See
+#' [hotwater::run()] for further details on default values.
+#'
+#' `hotwater -v` will provide the current version of hotwater.
+#' `hotwater -h` will provide help text.
+#'
+#' @param -f plumber file
+#' @param -d extra directories
+#' @param -p plumber port
+#' @param -h show help
+#' @param --host plumber host
+#' @seealso [hotwater::run]
+#' @examples
+#' ```sh
+#' hotwater -f path/to/app.R -p 9999
+#' ```
+#' @rdname cli
+#' @name cli
+NULL
+
 common_install_paths <- list(
     unix = c(
         "~/.local/bin/",
@@ -89,28 +113,6 @@ check_suggests <- function() {
     }
 }
 
-#' @title Run hotwater from the command line
-#'
-#' @description
-#' Following [hotwater::install_hotwater()], the `hotwater` command can be used
-#' to run a hotwater engine straight from the terminal. See
-#' [hotwater::run()] for further details on default values.
-#'
-#' `hotwater -v` will provide the current version of hotwater.
-#' `hotwater -h` will provide help text.
-#'
-#' @usage hotwater [args]
-#' @param -f plumber file
-#' @param -d extra directories
-#' @param -p plumber port
-#' @param -h show help
-#' @param --host plumber host
-#' @seealso [hotwater::run]
-#' @examples
-#' ```sh
-#' hotwater -f path/to/app.R -p 9999
-#' ```
-#' @rdname cli
 run_cli <- function() {
     doc <- "hotwater
 

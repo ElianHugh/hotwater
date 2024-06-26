@@ -9,7 +9,7 @@
 #' directories other than the plumber folder are modified.
 #'
 #' If a plumber endpoint returns an HTML response, when hotwater
-#' refreshes the API, {hotwater} will also order a refresh of any
+#' refreshes the API, \{hotwater\} will also order a refresh of any
 #' webpage that is using the API.
 #'
 #' @details
