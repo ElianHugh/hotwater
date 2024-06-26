@@ -12,7 +12,7 @@ new_config <- function(...) {
         new_port(host = host)
     ignore <- dots$ignore %||%
         utils::glob2rx(
-            paste0(
+            paste(
                 c("*.sqlite", "*.git*"),
                 collapse = "|"
             )
@@ -39,11 +39,15 @@ new_config <- function(...) {
 validate_config <- function(config) {
     stopifnot(is_config(config))
 
+    if (length(config$entry_path) > 1L) {
+        error_invalid_path_length(config$entry_path)
+    }
+
     if (!file.exists(config$entry_path) || dir.exists(config$entry_path)) {
         error_invalid_path(config$entry_path)
     }
 
-    if (!is.null(config$dirs) && any(!dir.exists(config$dirs))) {
+    if (!is.null(config$dirs) && !all(dir.exists(config$dirs))) {
         invalid <- config$dirs[!dir.exists(config$dirs)]
         error_invalid_dir(invalid)
     }
@@ -74,5 +78,5 @@ new_port <- function(used, host = "127.0.0.1") {
 }
 
 is_config <- function(x) {
-    "hotwater_config" %in% class(x)
+    inherits(x, "hotwater_config")
 }

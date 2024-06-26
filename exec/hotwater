@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 if (!requireNamespace("hotwater", quietly = TRUE)) {
-    cli::cli_inform("Bootstrapping hotwater...")
+    base::message("Bootstrapping hotwater...")
     utils::install.packages("hotwater", repos = "https://elianhugh.r-universe.dev")
 }
 
