@@ -13,11 +13,11 @@
 #' @param -p plumber port
 #' @param -h show help
 #' @param --host plumber host
-#' @seealso [hotwater::run]
+#' @seealso [hotwater::run()]
 #' @examples
-#' ```sh
-#' hotwater -f path/to/app.R -p 9999
-#' ```
+#' # ```sh
+#' # hotwater -f path/to/app.R -p 9999
+#' # ```
 #' @rdname cli
 #' @name cli
 NULL

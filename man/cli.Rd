@@ -23,10 +23,10 @@ to run a hotwater engine straight from the terminal. See
 \code{hotwater -h} will provide help text.
 }
 \examples{
-```sh
-hotwater -f path/to/app.R -p 9999
-```
+# ```sh
+# hotwater -f path/to/app.R -p 9999
+# ```
 }
 \seealso{
-\link{run}
+\code{\link[=run]{run()}}
 }
