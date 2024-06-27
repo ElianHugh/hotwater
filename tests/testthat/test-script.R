@@ -3,7 +3,9 @@ test_that("hotwater install/uninstall works", {
     local({
         hw_install_folder <- withr::local_tempdir("install_path")
         # should work first time
-        expect_no_error(install_hotwater(hw_install_folder))
+        expect_no_error(
+            suppressMessages(install_hotwater(hw_install_folder))
+        )
         # error because file already exists
         expect_error(
             install_hotwater(hw_install_folder),
@@ -11,7 +13,9 @@ test_that("hotwater install/uninstall works", {
         )
 
         # work first time
-        expect_no_error(uninstall_hotwater(hw_install_folder))
+        expect_no_error(
+            suppressMessages(uninstall_hotwater(hw_install_folder))
+        )
         # warning because no file exists
         expect_warning(
             uninstall_hotwater(hw_install_folder),

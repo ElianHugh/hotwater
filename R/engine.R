@@ -12,7 +12,7 @@ new_engine <- function(config) {
                         config$host,
                         config$socket_port
                     ),
-                    autostart = FALSE
+                    autostart = TRUE
                 )
             )
         ),
