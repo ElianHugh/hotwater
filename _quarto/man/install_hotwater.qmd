@@ -1,10 +1,10 @@
-
-## WORK IN PROGRESS {.unnumbered}
+## Install global hotwater script {.unnumbered}
 
 
 ### Description
 
-WORK IN PROGRESS
+If hotwater is installed, users may run <code>hotwater</code> from the command line
+rather than from an R terminal.
 
 
 
@@ -19,7 +19,26 @@ WORK IN PROGRESS
 <table>
 <tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="install_folder">install_folder</code></td>
 <td>
-folder (in PATH) to install hotwater
+[default &quot;~/.local/bin/&quot;] folder to install hotwater
+script into. To run as expected, make sure that the folder supplied is on your
+<code>PATH</code> envar.
 </td></tr>
 </table>
 
+
+### See Also
+
+uninstall_hotwater
+
+
+
+### Examples
+```{r, warning=FALSE, message=FALSE, eval=TRUE}
+library(hotwater)
+
+if (interactive()) {
+ hotwater::install_hotwater()
+}
+
+
+```

@@ -1,10 +1,9 @@
-
-## WORK IN PROGRESS {.unnumbered}
+## Uninstall global hotwater script {.unnumbered}
 
 
 ### Description
 
-WORK IN PROGRESS
+Uninstall global hotwater script
 
 
 
@@ -19,7 +18,25 @@ WORK IN PROGRESS
 <table>
 <tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="install_folder">install_folder</code></td>
 <td>
-folder (in PATH) to uninstall hotwater
+[default &quot;~/.local/bin/&quot;] folder to uninstall hotwater
+from.
 </td></tr>
 </table>
 
+
+### See Also
+
+install_hotwater
+
+
+
+### Examples
+```{r, warning=FALSE, message=FALSE, eval=TRUE}
+library(hotwater)
+
+if (interactive()) {
+    hotwater::uninstall_hotwater()
+}
+
+
+```

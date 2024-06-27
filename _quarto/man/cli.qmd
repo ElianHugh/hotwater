@@ -1,0 +1,56 @@
+## Run hotwater from the command line {.unnumbered}
+
+
+### Description
+
+Following <code>install_hotwater()</code>, the <code>hotwater</code> command can be used
+to run a hotwater engine straight from the terminal. See
+<code>run()</code> for further details on default values.
+
+<code>hotwater -v</code> will provide the current version of hotwater.
+<code>hotwater -h</code> will provide help text.
+
+
+
+### Arguments
+
+<table>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="-f">-f</code></td>
+<td>
+plumber file
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="-d">-d</code></td>
+<td>
+extra directories
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="-p">-p</code></td>
+<td>
+plumber port
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="-h">-h</code></td>
+<td>
+show help
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="--host">--host</code></td>
+<td>
+plumber host
+</td></tr>
+</table>
+
+
+### See Also
+
+<code>run()</code>
+
+
+
+### Examples
+```{r, warning=FALSE, message=FALSE, eval=TRUE}
+library(hotwater)
+
+# ```sh
+# hotwater -f path/to/app.R -p 9999
+# ```
+
+
+```

@@ -15,6 +15,8 @@ website:
         file: index.qmd
       - section: Reference
         contents:
+          - text: cli
+            file: man/cli.qmd
           - text: install_hotwater
             file: man/install_hotwater.qmd
           - text: run
