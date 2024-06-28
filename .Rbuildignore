@@ -11,3 +11,4 @@
 ^\.lintr$
 ^README\.Rmd$
 ^TODO\.md$
+^docs$
