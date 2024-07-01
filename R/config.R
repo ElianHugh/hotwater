@@ -39,6 +39,10 @@ new_config <- function(...) {
 validate_config <- function(config) {
     stopifnot(is_config(config))
 
+    if (length(config$entry_path) > 1L) {
+        error_invalid_path_length(config$entry_path)
+    }
+
     if (!file.exists(config$entry_path) || dir.exists(config$entry_path)) {
         error_invalid_path(config$entry_path)
     }

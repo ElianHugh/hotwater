@@ -9,4 +9,5 @@ new_test_engine <- function() {
 cleanup_test_engine <- function(engine) {
     kill_engine(engine)
     close(engine$publisher)
+    Sys.sleep(1L)
 }
