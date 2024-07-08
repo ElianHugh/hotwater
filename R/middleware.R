@@ -1,27 +1,36 @@
 injection <- function(engine) {
-    system.file("middleware", "injection.html", package = "hotwater", mustWork = TRUE) |>
-        readLines() |>
-        paste0(collapse = "\n") |>
-        sprintf(engine$publisher$listener[[1L]]$url)
+    injection_lines <- readLines(
+        system.file("middleware", "injection.html", package = "hotwater", mustWork = TRUE)
+    )
+
+    sprintf(
+        paste0(injection_lines, collapse = "\n"),
+        engine$publisher$listener[[1L]]$url
+    )
 }
 
 middleware <- function(engine) {
     js <- injection(engine)
     hook <- postserialise_hotwater(js)
     function(pr) {
-        pr |>
-            # remove hotwater from the api spec
-            plumber::pr_set_api_spec(function(spec) {
-                spec$paths[["/__hotwater__"]] <- NULL
-                spec
-            }) |>
-            # the dummy path is needed for pinging the server from hotwater
-            plumber::pr_get(
-                "/__hotwater__", function() "running",
-                serializer = plumber::serializer_text(),
-                preempt = "__first__"
-            ) |>
-            plumber::pr_hook("postserialize", hook)
+        # remove hotwater from the api spec
+        plumber::pr_set_api_spec(pr, function(spec) {
+            spec$paths[["/__hotwater__"]] <- NULL
+            spec
+        })
+        # the dummy path is needed for pinging the server from hotwater
+        plumber::pr_get(
+            pr,
+            "/__hotwater__",
+            function() "running",
+            serializer = plumber::serializer_text(),
+            preempt = "__first__"
+        )
+        plumber::pr_hook(
+            pr,
+            "postserialize",
+            hook
+        )
     }
 }
 
@@ -32,8 +41,7 @@ postserialise_hotwater <- function(js) {
         }
         if (grepl("text/html", value$headers[["Content-Type"]])) {
             value$headers[["Cache-Control"]] <- "no-cache"
-            value$body <- c(value$body, js) |>
-                paste0(collapse = "\n")
+            value$body <- paste0(c(value$body, js), collapse = "\n")
         }
         value
     }
@@ -55,9 +63,9 @@ is_plumber_running <- function(engine) {
                 engine$config$host,
                 engine$config$port
             )
-            res <- httr2::request(url) |>
-                httr2::req_perform() |>
-                httr2::resp_status()
+            res <- httr2::resp_status(
+                httr2::req_perform(httr2::request(url))
+            )
             res == 200L
         },
         error = function(e) {

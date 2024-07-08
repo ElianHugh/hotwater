@@ -42,14 +42,12 @@
 #' @seealso [plumber::options_plumber],
 #' [plumber::get_option_or_env], [plumber::serializer_html]
 #'
-#' @examples
-#' if (interactive()) {
+#' @examplesIf interactive()
 #'  # start a hotwater session on port 9999
 #'  hotwater::run(
 #'    path = system.file("examples", "plumber.R", package = "hotwater"),
 #'    port = 9999L
 #'  )
-#' }
 #'
 #' @return NULL
 #' @export

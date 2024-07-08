@@ -21,14 +21,13 @@ new_runner <- function(engine) {
             if (requireNamespace("box", quietly = TRUE)) {
                 box::set_script_path(mod)
             }
-            plumber::pr(path) |>
-                mdware() |>
-                plumber::pr_run(
-                    port = port,
-                    host = host,
-                    quiet = TRUE,
-                    debug = TRUE
-                )
+            plumber::pr_run(
+                mdware(plumber::pr(path)),
+                port = port,
+                host = host,
+                quiet = TRUE,
+                debug = TRUE
+            )
         },
         .args = list(
             port = port,
