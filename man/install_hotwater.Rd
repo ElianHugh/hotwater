@@ -4,10 +4,10 @@
 \alias{install_hotwater}
 \title{Install global hotwater script}
 \usage{
-install_hotwater(install_folder = "~/.local/bin/")
+install_hotwater(install_folder)
 }
 \arguments{
-\item{install_folder}{[default "~/.local/bin/"] folder to install hotwater
+\item{install_folder}{folder to install hotwater
 script into. To run as expected, make sure that the folder supplied is on your
 \code{PATH} envar.}
 }
@@ -16,9 +16,9 @@ If hotwater is installed, users may run \code{hotwater} from the command line
 rather than from an R terminal.
 }
 \examples{
-if (interactive()) {
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
  hotwater::install_hotwater()
-}
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \link{uninstall_hotwater}

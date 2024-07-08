@@ -8,7 +8,7 @@ test_that("engine reuse", {
     )
     expect_true(
         should_reuse_engine(
-            old = engine$config,
+            old_config = engine$config,
             new_config(
                 dirs = engine$config$dirs,
                 path = engine$config$entry_path,

@@ -21,14 +21,13 @@ new_runner <- function(engine) {
             if (requireNamespace("box", quietly = TRUE)) {
                 box::set_script_path(mod)
             }
-            plumber::pr(path) |>
-                mdware() |>
-                plumber::pr_run(
-                    port = port,
-                    host = host,
-                    quiet = TRUE,
-                    debug = TRUE
-                )
+            plumber::pr_run(
+                mdware(plumber::pr(path)),
+                port = port,
+                host = host,
+                quiet = TRUE,
+                debug = TRUE
+            )
         },
         .args = list(
             port = port,
@@ -45,7 +44,10 @@ new_runner <- function(engine) {
 
     while (i < timeout && is_runner_alive(engine) && !is_plumber_running(engine)) {
         i <- i + 1L
-        try(cli::cli_progress_update(.envir = parent.frame(n = 1L)), silent = TRUE)
+        try(
+            cli::cli_progress_update(.envir = parent.frame(n = 1L)),
+            silent = TRUE
+        )
         Sys.sleep(0.1)
     }
 
