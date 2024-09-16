@@ -24,11 +24,11 @@ NULL
 
 common_install_paths <- list(
     unix = c(
-        "~/.local/bin/",
-        "~/bin/",
-        "/usr/bin/",
-        "/usr/local/bin/",
-        "/bin/"
+        file.path("~", ".local", "bin"),
+        file.path("~", "bin"),
+        file.path("usr", "bin"),
+        file.path("usr", "local", "bin"),
+        file.path("bin")
     ),
     windows = c() # does windows even work with this?
 )
@@ -38,18 +38,16 @@ common_install_paths <- list(
 #' If hotwater is installed, users may run `hotwater` from the command line
 #' rather than from an R terminal.
 #'
-#' @param install_folder \[default "~/.local/bin/"] folder to install hotwater
+#' @param install_folder folder to install hotwater
 #' script into. To run as expected, make sure that the folder supplied is on your
 #' `PATH` envar.
 #' @seealso [hotwater::uninstall_hotwater]
-#' @examples
-#' if (interactive()) {
+#' @examplesIf interactive()
 #'  hotwater::install_hotwater()
-#' }
 #' @return NULL
 #'
 #' @export
-install_hotwater <- function(install_folder = "~/.local/bin/") {
+install_hotwater <- function(install_folder) {
     p <- file.path(install_folder, "hotwater")
 
     if (file.exists(p)) {
@@ -70,16 +68,13 @@ install_hotwater <- function(install_folder = "~/.local/bin/") {
 
 #' Uninstall global hotwater script
 #'
-#' @param install_folder \[default "~/.local/bin/"] folder to uninstall hotwater
-#' from.
-#' @examples
-#' if (interactive()) {
-#'     hotwater::uninstall_hotwater()
-#' }
+#' @param install_folder folder to uninstall hotwater from.
+#' @examplesIf interactive()
+#'  hotwater::uninstall_hotwater()
 #' @seealso [hotwater::install_hotwater]
 #' @return NULL
 #' @export
-uninstall_hotwater <- function(install_folder = "~/.local/bin/") {
+uninstall_hotwater <- function(install_folder) {
     p <- file.path(install_folder, "hotwater")
     if (file.exists(p)) {
         success <- file.remove(p)

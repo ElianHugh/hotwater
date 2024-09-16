@@ -3,7 +3,49 @@ linters: linters_with_defaults(
   implicit_integer_linter(),
   indentation_linter(indent = 4L),
   object_name_linter(styles = c("snake_case", "symbols"), regexes = character()),
-  object_usage_linter = NULL
+  unused_import_linter(
+  allow_ns_usage = FALSE,
+  except_packages = c("bit64", "data.table", "tidyverse"),
+  interpret_glue = TRUE
+  ),
+  object_usage_linter = NULL,
+  sprintf_linter(),
+  outer_negation_linter(),
+  missing_argument_linter(),
+  missing_package_linter(),
+  duplicate_argument_linter(),
+  length_test_linter(),
+  redundant_equals_linter(),
+  equals_na_linter(),
+  unreachable_code_linter(),
+  boolean_arithmetic_linter(),
+  # package linters
+  package_hooks_linter(),
+  backport_linter(r_version = getRversion(), except = character()),
+  yoda_test_linter(),
+  expect_true_false_linter(),
+  expect_comparison_linter(),
+  expect_identical_linter(),
+  expect_type_linter(),
+  ifelse_censor_linter(),
+  scalar_in_linter(),
+  keyword_quote_linter(),
+  nonportable_path_linter(lax = TRUE),
+  paren_body_linter(),
+  paste_linter(
+  allow_empty_sep = FALSE,
+  allow_to_string = FALSE,
+  allow_file_path = c("double_slash", "always", "never")
+  ),
+  class_equals_linter(),
+  condition_message_linter(),
+  nested_ifelse_linter(),
+  string_boundary_linter(allow_grepl = FALSE),
+  inner_combine_linter(),
+  seq_linter(),
+  sort_linter(),
+  regex_subset_linter(),
+  library_call_linter(allow_preamble = TRUE)
   )
 exclusions: list("man/", "inst/", "src/", ".vscode/", ".Rproj.user/", "R/import-standalone-obj-type.R", "R/import-standalone-types-check.R")
 encoding: "UTF-8"

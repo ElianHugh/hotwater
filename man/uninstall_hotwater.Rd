@@ -4,19 +4,18 @@
 \alias{uninstall_hotwater}
 \title{Uninstall global hotwater script}
 \usage{
-uninstall_hotwater(install_folder = "~/.local/bin/")
+uninstall_hotwater(install_folder)
 }
 \arguments{
-\item{install_folder}{[default "~/.local/bin/"] folder to uninstall hotwater
-from.}
+\item{install_folder}{folder to uninstall hotwater from.}
 }
 \description{
 Uninstall global hotwater script
 }
 \examples{
-if (interactive()) {
-    hotwater::uninstall_hotwater()
-}
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+ hotwater::uninstall_hotwater()
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \link{install_hotwater}

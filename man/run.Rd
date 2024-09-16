@@ -45,14 +45,13 @@ inject a websocket into the HTML client that listens for the
 plumber server refresh.
 }
 \examples{
-if (interactive()) {
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
  # start a hotwater session on port 9999
  hotwater::run(
    path = system.file("examples", "plumber.R", package = "hotwater"),
    port = 9999L
  )
-}
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \link[plumber:options_plumber]{plumber::options_plumber},

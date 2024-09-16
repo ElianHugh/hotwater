@@ -1,3 +1,7 @@
+# this file contains the construction, destruction, and running of the engine.
+# "engine" refers to the superclass that contains the configuration, runner,
+# and publisher for the given hotwater. also, it's amusing to call it a "hotwater engine".
+
 new_engine <- function(config) {
     stopifnot(is_config(config))
     structure(
@@ -12,7 +16,7 @@ new_engine <- function(config) {
                         config$host,
                         config$socket_port
                     ),
-                    autostart = TRUE
+                    autostart = FALSE
                 )
             )
         ),
@@ -26,9 +30,7 @@ run_engine <- function(engine) {
         teardown_engine(engine)
         buildup_engine(engine)
     }
-    on.exit({
-        teardown_engine(engine)
-    })
+    on.exit({ teardown_engine(engine) }) # nolint: brace_linter.
 
     cli_welcome()
     buildup_engine(engine)
@@ -42,7 +44,7 @@ run_engine <- function(engine) {
     )
 
     repeat {
-        Sys.sleep(0.05)
+        Sys.sleep(0.05) # todo, allow this to be configured at some point
         current_state <- watch_directory(
             engine,
             current_state,
@@ -61,12 +63,18 @@ buildup_engine <- function(engine) {
 
     cli_server_start_progress(engine)
     res <- new_runner(engine)
+
+    if (engine$publisher$listener[[1L]][["state"]] != "started") {
+        start(engine$publisher$listener[[1L]])
+    }
+
     if (!res) {
         cli::cli_progress_done(result = "failed")
     } else {
         publish_browser_reload(engine)
         cli::cli_progress_done()
     }
+
     cli_watching_directory(engine)
 }
 
@@ -75,6 +83,7 @@ teardown_engine <- function(engine) {
 
     cli_server_stop_progress()
     resp <- kill_engine(engine)
+
     if (isTRUE(resp)) {
         cli::cli_process_done()
     } else {
@@ -83,5 +92,5 @@ teardown_engine <- function(engine) {
 }
 
 is_engine <- function(x) {
-    "hotwater_engine" %in% class(x)
+    inherits(x, "hotwater_engine")
 }

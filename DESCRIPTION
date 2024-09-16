@@ -14,8 +14,9 @@ Imports:
     httr2,
     nanonext,
     mirai,
-    plumber,
-    utils
+    plumber (>= 0.4.0),
+    utils,
+    stats
 Suggests:
     box,
     docopt,

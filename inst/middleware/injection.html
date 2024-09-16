@@ -3,12 +3,12 @@
         if (!document.getElementById('hotwater-reloader')) {
             document.currentScript.id = "hotwater-reloader"
             document.body.appendChild(document.currentScript)
-            var ws = new WebSocket('%s', ['pub.sp.nanomsg.org']);
+            let ws = new WebSocket('%s', ['pub.sp.nanomsg.org']);
             ws.onmessage = () => {
                 window.location.reload();
             };
         } else {
-            var checker = document.currentScript;
+            let checker = document.currentScript;
             checker.parentNode.removeChild(checker);
         }
     })();

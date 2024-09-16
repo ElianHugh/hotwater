@@ -8,8 +8,21 @@ new_hotwater_warning <- function(type) {
 
 error_invalid_path <- function(path) {
     cli::cli_abort(
-        "Invalid path: {.file {path}}",
+        c(
+            "Invalid path: {.file {path}}",
+            x = "{.file {path}} not a valid path to a file"
+        ),
         class = new_hotwater_error("invalid_path")
+    )
+}
+
+error_invalid_path_length <- function(path) {
+    cli::cli_abort(
+        c(
+            "Invalid path: {.file {path}}",
+            x = "{.file {path}} must be length 1L"
+        ),
+        class = new_hotwater_error("invalid_path_length")
     )
 }
 
