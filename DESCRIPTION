@@ -15,7 +15,8 @@ Imports:
     nanonext,
     mirai,
     plumber (>= 0.4.0),
-    utils
+    utils,
+    stats
 Suggests:
     box,
     docopt,

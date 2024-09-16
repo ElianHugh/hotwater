@@ -3,3 +3,4 @@
 export(install_hotwater)
 export(run)
 export(uninstall_hotwater)
+importFrom(stats,start)
