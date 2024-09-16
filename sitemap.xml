@@ -1,33 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://elianhugh.github.io/hotwater/404.html</loc>
-  </url>
-  <url>
-    <loc>https://elianhugh.github.io/hotwater/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://elianhugh.github.io/hotwater/TODO.html</loc>
-  </url>
-  <url>
-    <loc>https://elianhugh.github.io/hotwater/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://elianhugh.github.io/hotwater/index.html</loc>
-  </url>
-  <url>
-    <loc>https://elianhugh.github.io/hotwater/reference/cli.html</loc>
-  </url>
-  <url>
-    <loc>https://elianhugh.github.io/hotwater/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://elianhugh.github.io/hotwater/reference/install_hotwater.html</loc>
-  </url>
-  <url>
-    <loc>https://elianhugh.github.io/hotwater/reference/run.html</loc>
-  </url>
-  <url>
-    <loc>https://elianhugh.github.io/hotwater/reference/uninstall_hotwater.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://elianhugh.github.io/hotwater/404.html</loc></url>
+<url><loc>https://elianhugh.github.io/hotwater/LICENSE.html</loc></url>
+<url><loc>https://elianhugh.github.io/hotwater/TODO.html</loc></url>
+<url><loc>https://elianhugh.github.io/hotwater/authors.html</loc></url>
+<url><loc>https://elianhugh.github.io/hotwater/index.html</loc></url>
+<url><loc>https://elianhugh.github.io/hotwater/reference/cli.html</loc></url>
+<url><loc>https://elianhugh.github.io/hotwater/reference/hotwater-package.html</loc></url>
+<url><loc>https://elianhugh.github.io/hotwater/reference/index.html</loc></url>
+<url><loc>https://elianhugh.github.io/hotwater/reference/install_hotwater.html</loc></url>
+<url><loc>https://elianhugh.github.io/hotwater/reference/run.html</loc></url>
+<url><loc>https://elianhugh.github.io/hotwater/reference/uninstall_hotwater.html</loc></url>
 </urlset>
+
