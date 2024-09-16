@@ -16,7 +16,7 @@ new_engine <- function(config) {
                         config$host,
                         config$socket_port
                     ),
-                    autostart = TRUE
+                    autostart = FALSE
                 )
             )
         ),
@@ -63,6 +63,10 @@ buildup_engine <- function(engine) {
 
     cli_server_start_progress(engine)
     res <- new_runner(engine)
+
+    if (engine$publisher$listener[[1L]][["state"]] != "started") {
+        start(engine$publisher$listener[[1L]])
+    }
 
     if (!res) {
         cli::cli_progress_done(result = "failed")
