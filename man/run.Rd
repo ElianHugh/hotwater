@@ -9,24 +9,23 @@ run(path, dirs = NULL, port = NULL, host = NULL, ignore = NULL)
 \arguments{
 \item{path}{path to plumber API file.}
 
-\item{dirs}{(optional) a character vector of extra directories
+\item{dirs}{\strong{(optional)} a character vector of extra directories
 to watch for file changes. Paths are resolved from the current working
 directory, not the directory of the plumber API file.}
 
-\item{port}{[default \code{\link[httpuv:randomPort]{httpuv::randomPort()}}] port to launch API on.
+\item{port}{port to launch API on.
 
-port can either be set explicitly, or it defaults to the
-\code{plumber.port} option. If the plumber option is undefined, the fallback
-value of \code{\link[httpuv:randomPort]{httpuv::randomPort()}} is used.}
+If NULL, defaults to the \code{plumber.port} option.
+If the plumber option is undefined, the fallback value of \code{\link[httpuv:randomPort]{httpuv::randomPort()}} is used.}
 
-\item{host}{[default "127.0.0.1"] host to launch API on.
+\item{host}{host to launch API on.
 
-host can either be set explicitly, or it defaults to the
-\code{plumber.host} option. If the plumber option is undefined, the fallback
-value of "127.0.0.1" is used.}
+If NULL, defaults to the \code{plumber.host} option.
+If the plumber option is undefined, the fallback value of "127.0.0.1" is used.}
 
-\item{ignore}{[default \code{c("*.sqlite", "*.git*")}] vector of file globs
-to ignore.}
+\item{ignore}{vector of file globs to ignore.
+
+If NULL, defaults to \code{c("*.sqlite", "*.git")}}
 }
 \description{
 Start the hotwater engine, launching a plumber API

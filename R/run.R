@@ -20,24 +20,23 @@
 #'
 #' @param path path to plumber API file.
 #'
-#' @param dirs (optional) a character vector of extra directories
+#' @param dirs **(optional)** a character vector of extra directories
 #' to watch for file changes. Paths are resolved from the current working
 #' directory, not the directory of the plumber API file.
 #'
-#' @param port \[default [httpuv::randomPort()]] port to launch API on.
+#' @param port port to launch API on.
 #'
-#' port can either be set explicitly, or it defaults to the
-#' `plumber.port` option. If the plumber option is undefined, the fallback
-#' value of [httpuv::randomPort()] is used.
+#' If NULL, defaults to the `plumber.port` option.
+#' If the plumber option is undefined, the fallback value of [httpuv::randomPort()] is used.
 #'
-#' @param host \[default "127.0.0.1"] host to launch API on.
+#' @param host host to launch API on.
 #'
-#' host can either be set explicitly, or it defaults to the
-#' `plumber.host` option. If the plumber option is undefined, the fallback
-#' value of "127.0.0.1" is used.
+#' If NULL, defaults to the `plumber.host` option.
+#' If the plumber option is undefined, the fallback value of "127.0.0.1" is used.
 #'
-#' @param ignore \[default `c("*.sqlite", "*.git*")`] vector of file globs
-#' to ignore.
+#' @param ignore vector of file globs to ignore.
+#'
+#' If NULL, defaults to `c("*.sqlite", "*.git")`
 #'
 #' @seealso [plumber::options_plumber],
 #' [plumber::get_option_or_env], [plumber::serializer_html]

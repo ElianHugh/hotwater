@@ -1,4 +1,4 @@
-test_that("startup/teardown messages don't error", {
+test_that("startup & teardown messages don't error", {
     engine <- new_test_engine()
     expect_no_error(suppressMessages(buildup_engine(engine)))
     expect_no_error(suppressMessages(teardown_engine(engine)))

@@ -11,9 +11,12 @@
 
 <!-- badges: end -->
 
+> [!NOTE]
+> This package is under active development and its functionality may change over time.
+
 - autoreload for plumber
 - auto-refresh the browser when a change is made
-- run from the commandline with the `/exec/hotwater` bash script
+- run hotwater from the commandline via included bash script
 
 ## Installation
 

@@ -18,5 +18,4 @@
 
 ## 5
 
-- An error doesn't always cause hotwater to attempt to restart. Should it? An error can indicate that the API has to be changed
-before trying again
+- An error doesn't always cause hotwater to attempt to restart. Should it? An error can indicate that the API has to be changed before trying again

@@ -1,4 +1,4 @@
-test_that("hotwater install/uninstall works", {
+test_that("hotwater install & uninstall works", {
     skip_on_os("windows")
     local({
         hw_install_folder <- withr::local_tempdir("install_path")
