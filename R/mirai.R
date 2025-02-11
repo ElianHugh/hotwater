@@ -45,12 +45,17 @@ new_runner <- function(engine) {
     i <- 0L
     timeout <- 1000L
 
-    while (i < timeout && is_runner_alive(engine) && !is_plumber_running(engine)) {
+    repeat {
         i <- i + 1L
         try(
             cli::cli_progress_update(.envir = parent.frame(n = 1L)),
             silent = TRUE
         )
+
+        if (i >= timeout || !is_runner_alive(engine) || is_plumber_running(engine)) {
+            break
+        }
+
         Sys.sleep(0.1)
     }
 

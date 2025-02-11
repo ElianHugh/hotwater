@@ -12,6 +12,7 @@ Enhances development for plumber APIs by enabling live reloading. Monitors API f
 Useful links:
 \itemize{
   \item \url{https://github.com/ElianHugh/hotwater}
+  \item \url{https://elianhugh.github.io/hotwater/}
   \item Report bugs at \url{https://github.com/ElianHugh/hotwater/issues}
 }
 

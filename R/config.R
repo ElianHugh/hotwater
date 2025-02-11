@@ -1,5 +1,5 @@
-# handle all config here to pass to engine
-# including defaults, config files, etc
+# Handle all hotwater config here to pass to engine (see engine.R)
+# Includes defaults, config files, etc
 
 new_config <- function(...) {
     dots <- list(...)
