@@ -131,14 +131,14 @@ drain_runner_log <- function(engine) {
     if (nzchar(data)) {
         data <- gsub(
             "=== HOTWATER_ERROR_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_ERROR_END ===",
-            cli::format_error(c(x = "\\1")),
+            cli::col_red("\\1"),
             data,
             perl = TRUE
         )
 
         data <- gsub(
             "=== HOTWATER_WARNING_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_WARNING_END ===",
-            cli::format_warning(c(i = "\\1")),
+            cli::col_yellow("\\1"),
             data,
             perl = TRUE
         )

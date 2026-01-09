@@ -8,6 +8,7 @@ function() {
 
 print('/foo')
 
-warning("bar")
+message("foo")
 
+rlang::abort("foo")
 stop('oh no')
