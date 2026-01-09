@@ -4,7 +4,7 @@
 
 new_engine <- function(config) {
     stopifnot(is_config(config))
-    structure(
+    eng <- structure(
         list2env(
             list(
                 runner = NULL,
@@ -24,6 +24,14 @@ new_engine <- function(config) {
         ),
         class = c("hotwater_engine", "environment")
     )
+
+    reg.finalizer(eng, function(e) {
+        try(kill_engine(e), silent=TRUE)
+        try(nanonext::close(e$publisher), silent = TRUE)
+        try(unlink(e$logpath), silent = TRUE)
+    }, onexit=TRUE)
+
+    eng
 }
 
 run_engine <- function(engine) {
@@ -34,7 +42,7 @@ run_engine <- function(engine) {
     }
     on.exit({
         teardown_engine(engine)
-        unlink(engine$logpath)
+        try(unlink(engine$logpath), silent = TRUE)
     }) # nolint: brace_linter.
 
     cli_welcome()

@@ -32,11 +32,12 @@ test_that("can kill engine", {
 
 test_that('logs are cleared', {
     engine <- new_test_engine()
+    logpath <- engine$logpath
     new_runner(engine)
-    expect_true(file.exists(engine$logpath))
+    expect_true(file.exists(logpath))
     kill_engine(engine)
     cleanup_test_engine(engine)
-    Sys.sleep(0.1)
-    expect_false(file.exists(engine$logpath))
-
+    rm(engine)
+    gc()
+    expect_false(file.exists(logpath))
 })
