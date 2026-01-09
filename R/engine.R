@@ -26,8 +26,6 @@ new_engine <- function(config) {
     )
 
     reg.finalizer(eng, function(e) {
-        try(kill_engine(e), silent=TRUE)
-        try(nanonext::close(e$publisher), silent = TRUE)
         try(unlink(e$logpath), silent = TRUE)
     }, onexit=TRUE)
 

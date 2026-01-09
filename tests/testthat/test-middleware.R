@@ -74,9 +74,17 @@ test_that("is_plumber_running works", {
 test_that("autoreloader is attached", {
     engine <- new_test_engine()
     new_runner(engine)
+
+    i <- 1L
+    while (i < 20L && !is_plumber_running(engine)) {
+        i <- i + 1L
+        Sys.sleep(0.5)
+    }
+
     resp <- sprintf("%s:%s", engine$config$host, engine$config$port) |>
         httr2::request() |>
         httr2::req_perform()
+
     expect_no_error(
         httr2::resp_check_content_type(
             resp,
