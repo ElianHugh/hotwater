@@ -65,6 +65,8 @@ buildup_engine <- function(engine) {
     stopifnot(is_engine(engine))
 
     cli_server_start_progress(engine)
+    file.create(engine$logpath)
+    engine$logpos <- 0L
     res <- new_runner(engine)
 
     if (engine$publisher$listener[[1L]][["state"]] != "started") {
@@ -87,6 +89,7 @@ teardown_engine <- function(engine) {
 
     cli_server_stop_progress()
     resp <- kill_engine(engine)
+    unlink(engine$logpath)
 
     if (isTRUE(resp)) {
         cli::cli_process_done()
@@ -125,8 +128,6 @@ drain_runner_log <- function(engine) {
     data <- readChar(con, nchars = size - logpos, useBytes = TRUE)
 
     engine$logpos <- size
-
-
 
     if (nzchar(data)) {
         data <- gsub(
