@@ -32,7 +32,10 @@ run_engine <- function(engine) {
         teardown_engine(engine)
         buildup_engine(engine)
     }
-    on.exit({ teardown_engine(engine) }) # nolint: brace_linter.
+    on.exit({
+        teardown_engine(engine)
+        unlink(engine$logpath)
+    }) # nolint: brace_linter.
 
     cli_welcome()
     buildup_engine(engine)
@@ -65,8 +68,11 @@ buildup_engine <- function(engine) {
     stopifnot(is_engine(engine))
 
     cli_server_start_progress(engine)
-    file.create(engine$logpath)
+
+    # just in case the logfile was deleted
+    cat("", file = engine$logpath)
     engine$logpos <- 0L
+
     res <- new_runner(engine)
 
     if (engine$publisher$listener[[1L]][["state"]] != "started") {
@@ -89,7 +95,6 @@ teardown_engine <- function(engine) {
 
     cli_server_stop_progress()
     resp <- kill_engine(engine)
-    unlink(engine$logpath)
 
     if (isTRUE(resp)) {
         cli::cli_process_done()
@@ -103,7 +108,6 @@ is_engine <- function(x) {
 }
 
 drain_runner_log <- function(engine) {
-
     logpath <- engine$logpath
     logpos <- engine$logpos
 
@@ -119,6 +123,10 @@ drain_runner_log <- function(engine) {
     if (size < logpos) {
         engine$logpos <- 0L
         logpos <- 0L
+    }
+
+    if (size <= logpos) {
+        return()
     }
 
     con <- file(logpath, open = "rb")
