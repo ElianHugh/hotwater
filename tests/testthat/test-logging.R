@@ -26,17 +26,57 @@ test_that('log files are created/removed', {
 })
 
 test_that("stdout drain forwards log contents", {
-  engine <- new_test_engine()
-  logpath <- engine$logpath
+    engine <- new_test_engine()
+    logpath <- engine$logpath
 
-  cat("Hello World!\n", file = logpath)
-  engine$logpos <- 0L
+    cat("Hello World!\n", file = logpath)
 
-  out <- capture_write_stdout(function() {
+    out <- capture_write_stdout(function() {
     drain_runner_log(engine)
-  })
+    })
 
-  expect_true(any(grepl("Hello World!", out)))
+    expect_true(any(grepl("Hello World!", out)))
 
-  unlink(logpath)
+
+    cleanup_test_engine(engine)
+    rm(engine)
+    gc()
+})
+
+test_that("markers are removed", {
+    engine <- new_test_engine()
+    logpath <- engine$logpath
+    cat(
+        "=== HOTWATER_ERROR_BEGIN ===\nfoo\n=== HOTWATER_ERROR_END ===\n",
+        file = logpath
+    )
+
+    out <- capture_write_stdout(function() drain_runner_log(engine))
+    txt <- paste(out, collapse = "")
+
+    expect_true(grepl("foo", txt))
+    expect_false(grepl("HOTWATER_ERROR_BEGIN", txt))
+    expect_false(grepl("HOTWATER_ERROR_END", txt))
+
+
+    cleanup_test_engine(engine)
+    rm(engine)
+    gc()
+})
+
+
+test_that("engine doesn't reprint old content", {
+    engine <- new_test_engine()
+    logpath <- engine$logpath
+    cat("A\n", file = logpath)
+
+    out1 <- capture_write_stdout(function() drain_runner_log(engine))
+    out2 <- capture_write_stdout(function() drain_runner_log(engine))
+
+    expect_true(any(grepl("A", out1)))
+    expect_false(any(grepl("A", out2)))
+
+    cleanup_test_engine(engine)
+    rm(engine)
+    gc()
 })
