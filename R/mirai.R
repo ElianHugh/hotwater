@@ -9,7 +9,7 @@ new_runner <- function(engine) {
         dispatcher = FALSE,
         resilience = FALSE,
         autoexit = get_kill_signal(),
-        output = TRUE,
+        output = FALSE,
         .compute = engine$config$runner_compute
     )
 
@@ -18,26 +18,63 @@ new_runner <- function(engine) {
     mdware <- middleware(engine)
     mod <- file.path(getwd(), engine$config$entry_path)
     host <- engine$config$host
+    logpath <- engine$logpath
 
     engine$runner <- mirai::mirai(
         {
-            if (requireNamespace("box", quietly = TRUE)) {
-                box::set_script_path(mod)
-            }
-            plumber::pr_run(
-                mdware(plumber::pr(path)),
-                port = port,
-                host = host,
-                quiet = TRUE,
-                debug = TRUE
+
+            con <- file(logpath, open = "at")
+            sink(con)
+            sink(con, type = "message")
+
+            on.exit(
+                {
+                    try(sink(type = "message"), silent = TRUE)
+                    try(sink(), silent = TRUE)
+                    try(close(con), silent = TRUE)
+                },
+                add = TRUE
             )
+
+            withCallingHandlers(
+                tryCatch(
+                    {
+                        if (requireNamespace("box", quietly = TRUE)) {
+                            box::set_script_path(mod)
+                        }
+                        plumber::pr_run(
+                            mdware(plumber::pr(path)),
+                            port = port,
+                            host = host,
+                            quiet = TRUE,
+                            debug = TRUE
+                        )
+                    },
+                    error = function(e) {
+                        cat("=== HOTWATER_ERROR_BEGIN ===\n", file = con)
+                        cat(conditionMessage(e), "\n", file = con)
+                        cat("=== HOTWATER_ERROR_END ===\n", file = con)
+                        flush(con)
+                        stop(e)
+                    }
+                ),
+                warning = function(w) {
+                    cat("=== HOTWATER_WARNING_BEGIN ===\n", file = con)
+                    cat(conditionMessage(w), "\n", file = con)
+                    cat("=== HOTWATER_WARNING_END ===\n", file = con)
+                    flush(con)
+                    invokeRestart("muffleWarning")
+                }
+            )
+
         },
         .args = list(
             port = port,
             path = path,
             host = host,
             mdware = mdware,
-            mod = mod
+            mod = mod,
+            logpath = logpath
         ),
         .compute = engine$config$runner_compute
     )

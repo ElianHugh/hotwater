@@ -17,7 +17,9 @@ new_engine <- function(config) {
                         config$socket_port
                     ),
                     autostart = FALSE
-                )
+                ),
+                logpath = tempfile(),
+                logpos = 0L
             )
         ),
         class = c("hotwater_engine", "environment")
@@ -45,6 +47,7 @@ run_engine <- function(engine) {
 
     repeat {
         Sys.sleep(0.05) # todo, allow this to be configured at some point
+        drain_runner_log(engine)
         current_state <- watch_directory(
             engine,
             current_state,
@@ -76,6 +79,7 @@ buildup_engine <- function(engine) {
     }
 
     cli_watching_directory(engine)
+    drain_runner_log(engine)
 }
 
 teardown_engine <- function(engine) {
@@ -93,4 +97,52 @@ teardown_engine <- function(engine) {
 
 is_engine <- function(x) {
     inherits(x, "hotwater_engine")
+}
+
+drain_runner_log <- function(engine) {
+
+    logpath <- engine$logpath
+    logpos <- engine$logpos
+
+    if (!file.exists(logpath)) {
+        return()
+    }
+
+    size <- file.info(logpath)$size
+    if (is.na(size)) {
+        return()
+    }
+
+    if (size < logpos) {
+        engine$logpos <- 0L
+        logpos <- 0L
+    }
+
+    con <- file(logpath, open = "rb")
+    on.exit(close(con), add = TRUE)
+
+    seek(con, where = logpos, origin = "start")
+    data <- readChar(con, nchars = size - logpos, useBytes = TRUE)
+
+    engine$logpos <- size
+
+
+
+    if (nzchar(data)) {
+        data <- gsub(
+            "=== HOTWATER_ERROR_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_ERROR_END ===",
+            cli::format_error(c(x = "\\1")),
+            data,
+            perl = TRUE
+        )
+
+        data <- gsub(
+            "=== HOTWATER_WARNING_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_WARNING_END ===",
+            cli::format_warning(c(i = "\\1")),
+            data,
+            perl = TRUE
+        )
+
+        nanonext::write_stdout(data)
+    }
 }
