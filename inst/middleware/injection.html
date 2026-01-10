@@ -4,8 +4,54 @@
             document.currentScript.id = "hotwater-reloader"
             document.body.appendChild(document.currentScript)
             let ws = new WebSocket('%s', ['pub.sp.nanomsg.org']);
-            ws.onmessage = () => {
-                window.location.reload();
+            ws.binaryType = "arraybuffer";
+
+            function extractPayload(text) {
+                const m = text.match(/HW::[A-Za-z0-9_:-]+/);
+                return m ? m[0] : "";
+            }
+
+            function newlink(url) {
+                const u = new URL(url, window.location.href);
+                u.searchParams.set('__hotwater', Date.now());
+                return u.toString();
+            }
+
+            function reloadCSS() {
+                document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+                    const href = link.getAttribute('href');
+                    if (!href) return;
+                    const next = link.cloneNode(true);
+                    next.href = newlink(href);
+                    next.addEventListener('load', () => link.remove(), { once: true });
+                    link.parentNode.insertBefore(next, link.nextSibling);
+                });
+            }
+
+            function reloadImages() {
+                document.querySelectorAll('img').forEach((img) => {
+                    const src = img.getAttribute('src');
+                    if (!src) return;
+                    img.src = newlink(src);
+                });
+            }
+
+            ws.onmessage = (ev) => {
+                const decoded = new TextDecoder().decode(new Uint8Array(ev.data));
+                const payload = extractPayload(decoded);
+                switch(payload) {
+                    case "HW::resource": {
+                        console.log("hotwater: hot swapping resouces");
+                        reloadCSS();
+                        reloadImages();
+                        break;
+                    }
+                    case "HW::start": {
+                         window.location.reload();
+                         break;
+                    }
+                    default: new Error(`Unkown payload ${payload}`)
+                }
             };
         } else {
             let checker = document.currentScript;

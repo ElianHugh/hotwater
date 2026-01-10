@@ -37,10 +37,10 @@ directory_state_old <- function() {
 
 test_that("file watcher works", {
     changes <- get_changed_files(directory_state_old(), directory_state_new())
-    expect_true(did_files_change(changes))
+    expect_true(did_files_change((changes)))
     expect_identical(
         sort(c("./R/run.R", "./R/deleted.R", "./R/new.R")), # nolint: nonportable_path_linter.
-        sort(changes)
+        sort(unlist(changes, use.names=FALSE))
     )
 })
 

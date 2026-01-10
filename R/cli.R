@@ -16,6 +16,11 @@ cli_file_changed <- function(changes) {
     cli::cli_alert("{.file {changes}} changed!")
 }
 
+cli_hot_swapped <- function(changes) {
+    n <- length(changes)
+    cli::cli_inform("Hot swapped assets ({n} file{?s})")
+}
+
 cli_server_start_progress <- function(engine) {
     cli::cli_progress_step(
         msg = "Starting plumber server on {.url {engine$config$host}:{engine$config$port}}",

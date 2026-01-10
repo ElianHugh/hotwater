@@ -55,7 +55,7 @@ publish_browser_reload <- function(engine) {
     # protocol on the javascript side of things
     # may be worth getting a minimal protocol working down the line on the JS side so we can send
     # specific messages to the browser
-    nanonext::send(engine$publisher, "start")
+    nanonext::send(engine$publisher, "HW::start")
 }
 
 is_plumber_running <- function(engine) {
