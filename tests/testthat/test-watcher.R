@@ -48,7 +48,7 @@ test_that("file watcher works", {
 # implementation details here
 test_that("directory_state returns expected file state", {
     local({
-        watcher_dir <<- withr::local_tempdir("testdir")
+        watcher_dir <- withr::local_tempdir("testdir")
         writeLines("Hello world", file.path(watcher_dir, "hello.R"))
         writeLines("Bye world", file.path(watcher_dir, "bye.R"))
         file.create(file.path(watcher_dir, "empty.R"))
