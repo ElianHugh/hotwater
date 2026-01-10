@@ -16,7 +16,8 @@ Imports:
     mirai,
     plumber (>= 0.4.0),
     utils,
-    stats
+    stats,
+    jsonlite
 Suggests:
     box,
     docopt,

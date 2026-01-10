@@ -45,31 +45,35 @@
 
 
             ws.onmessage = (ev) => {
-                const u8 = stripTrailingNulls(new Uint8Array(ev.data));
-                const text = new TextDecoder("utf-8").decode(u8);
-                const msg = JSON.parse(text);
-                switch(msg.type) {
-                    case "HW::resource": {
-                        const targets = msg.targets.map((v) => {
-                            return v.split('.').pop();
-                        });
-                        const unique_targets = [...new Set(targets)];
+                try {
+                    const u8 = stripTrailingNulls(new Uint8Array(ev.data));
+                    const text = new TextDecoder("utf-8").decode(u8);
+                    const msg = JSON.parse(text);
+                    switch (msg.type) {
+                        case "HW::resource": {
+                            const targets = msg.targets.map((v) => {
+                                return v.split('.').pop();
+                            });
+                            const unique_targets = [...new Set(targets)];
 
-                        if (unique_targets.includes("css")) {
-                            reloadCSS();
+                            if (unique_targets.includes("css")) {
+                                reloadCSS();
+                            }
+
+                            if (unique_targets.length > 1 || !unique_targets.includes("css")) {
+                                reloadImages();
+                            }
+
+                            break;
                         }
-
-                        if (unique_targets.length > 1 || !unique_targets.includes("css")) {
-                            reloadImages();
+                        case "HW::page": {
+                            window.location.reload();
+                            break;
                         }
-
-                        break;
+                        default: new Error(`Unkown payload ${msg.type}`)
                     }
-                    case "HW::page": {
-                         window.location.reload();
-                         break;
-                    }
-                    default: new Error(`Unkown payload ${msg.type}`)
+                } catch (error) {
+                    console.log(error);
                 }
             };
         } else {
