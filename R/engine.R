@@ -44,7 +44,6 @@ hot_swappable <- c(
     "avif"
 )
 
-
 run_engine <- function(engine) {
     callback <- function(changes) {
         cli_file_changed(unique(unlist(changes, use.names=FALSE)))
@@ -55,7 +54,15 @@ run_engine <- function(engine) {
             all(exts %in% hot_swappable)
 
         if (is_hot_swappable) {
-            nanonext::send(engine$publisher, "HW::resource")
+            json <- jsonlite::toJSON(
+                list(type = "HW::resource", targets = list(changes$modified)),
+                auto_unbox = TRUE
+            )
+            nanonext::send(
+                engine$publisher,
+                json,
+                mode = "raw"
+            )
             cli_hot_swapped(unlist(changes, use.names=FALSE))
         } else {
             teardown_engine(engine)

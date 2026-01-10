@@ -11,6 +11,12 @@
                 return m ? m[0] : "";
             }
 
+            function stripTrailingNulls(u8) {
+                let end = u8.length;
+                while (end > 0 && u8[end - 1] === 0) end--;
+                return u8.subarray(0, end);
+            }
+
             function newlink(url) {
                 const u = new URL(url, window.location.href);
                 u.searchParams.set('__hotwater', Date.now());
@@ -36,21 +42,34 @@
                 });
             }
 
+
+
             ws.onmessage = (ev) => {
-                const decoded = new TextDecoder().decode(new Uint8Array(ev.data));
-                const payload = extractPayload(decoded);
-                switch(payload) {
+                const u8 = stripTrailingNulls(new Uint8Array(ev.data));
+                const text = new TextDecoder("utf-8").decode(u8);
+                const msg = JSON.parse(text);
+                switch(msg.type) {
                     case "HW::resource": {
-                        console.log("hotwater: hot swapping resouces");
-                        reloadCSS();
-                        reloadImages();
+                        const targets = msg.targets.map((v) => {
+                            return v.split('.').pop();
+                        });
+                        const unique_targets = [...new Set(targets)];
+
+                        if (unique_targets.includes("css")) {
+                            reloadCSS();
+                        }
+
+                        if (unique_targets.length > 1 || !unique_targets.includes("css")) {
+                            reloadImages();
+                        }
+
                         break;
                     }
-                    case "HW::start": {
+                    case "HW::page": {
                          window.location.reload();
                          break;
                     }
-                    default: new Error(`Unkown payload ${payload}`)
+                    default: new Error(`Unkown payload ${msg.type}`)
                 }
             };
         } else {
