@@ -51,3 +51,6 @@ rsconnect/
 # debug files
 .fuse_hidden*
 docs
+
+
+.DS_STORE
