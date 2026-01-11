@@ -26,6 +26,7 @@ did_files_change <- function(...) {
 }
 
 directory_state <- function(paths, ignore_pattern) {
+    paths <- paths[dir.exists(paths)]
     res <- file.info(
         list.files(paths, full.names = TRUE, recursive = TRUE, all.files = TRUE),
         extra_cols = FALSE

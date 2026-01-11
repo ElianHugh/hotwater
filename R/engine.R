@@ -46,11 +46,13 @@ hot_swappable <- c(
 
 run_engine <- function(engine) {
     callback <- function(changes) {
-        cli_file_changed(unique(unlist(changes, use.names=FALSE)))
+
+        cli_file_changed(unique(unlist(changes, use.names = FALSE)))
 
         exts <- tolower(tools::file_ext(changes$modified))
 
-        is_hot_swappable <- length(changes$new) + length(changes$removed) == 0 &&
+        is_hot_swappable <- length(changes$new) + length(changes$removed) ==
+            0 &&
             all(exts %in% hot_swappable)
 
         if (is_hot_swappable) {
@@ -63,12 +65,11 @@ run_engine <- function(engine) {
                 json,
                 mode = "raw"
             )
-            cli_hot_swapped(unlist(changes, use.names=FALSE))
+            cli_hot_swapped(unlist(changes, use.names = FALSE))
         } else {
             teardown_engine(engine)
             buildup_engine(engine)
         }
-
     }
     on.exit({
         teardown_engine(engine)

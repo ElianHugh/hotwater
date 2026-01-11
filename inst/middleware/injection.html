@@ -6,11 +6,6 @@
             let ws = new WebSocket('%s', ['pub.sp.nanomsg.org']);
             ws.binaryType = "arraybuffer";
 
-            function extractPayload(text) {
-                const m = text.match(/HW::[A-Za-z0-9_:-]+/);
-                return m ? m[0] : "";
-            }
-
             function stripTrailingNulls(u8) {
                 let end = u8.length;
                 while (end > 0 && u8[end - 1] === 0) end--;
@@ -42,8 +37,6 @@
                 });
             }
 
-
-
             ws.onmessage = (ev) => {
                 try {
                     const u8 = stripTrailingNulls(new Uint8Array(ev.data));
@@ -70,7 +63,7 @@
                             window.location.reload();
                             break;
                         }
-                        default: new Error(`Unkown payload ${msg.type}`)
+                        default: throw new Error(`Unkown payload ${msg.type}`)
                     }
                 } catch (error) {
                     console.log(error);
