@@ -37,7 +37,9 @@ new_config <- function(...) {
                     ".Rhistory",
                     ".RData",
                     ".Ruserdata",
-                    ".Rproj.user/*"
+                    ".Rproj.user/*",
+
+                    "*/.*"
                 ),
                 collapse = "|"
             )

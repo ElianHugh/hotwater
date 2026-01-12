@@ -49,7 +49,7 @@ run_engine <- function(engine) {
 
         cli_file_changed(unique(unlist(changes, use.names = FALSE)))
 
-        exts <- tolower(tools::file_ext(changes$modified))
+        exts <- tolower(unlist(lapply(changes, tools::file_ext), use.names=FALSE))
 
         is_hot_swappable <- length(exts) > 0L &&
             all(exts %in% hot_swappable)
@@ -64,7 +64,7 @@ run_engine <- function(engine) {
                 json,
                 mode = "raw"
             )
-            cli_hot_swapped(unlist(changes, use.names = FALSE))
+            cli_hot_swapped(unique(unlist(changes, use.names = FALSE)))
         } else {
             teardown_engine(engine)
             buildup_engine(engine)

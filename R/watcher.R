@@ -22,16 +22,21 @@ get_changed_files <- function(current_state, next_state) {
 }
 
 did_files_change <- function(...) {
-    length(as.list(...)) > 0L
+    any(lengths(as.list(...))) > 0L
 }
 
 directory_state <- function(paths, ignore_pattern) {
     paths <- paths[dir.exists(paths)]
+
+      if (length(paths) == 0L) {
+        return(stats::setNames(numeric(0), character(0)))
+    }
+
     res <- file.info(
         list.files(paths, full.names = TRUE, recursive = TRUE, all.files = TRUE),
         extra_cols = FALSE
     )
     res <- res[grep(pattern = ignore_pattern, x = row.names(res), invert = TRUE), ]
-    res <- res[res$size > 0L, ]
+    res <- res[!is.na(res$size), ]
     stats::setNames(res$mtime, row.names(res))
 }
