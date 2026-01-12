@@ -51,8 +51,7 @@ run_engine <- function(engine) {
 
         exts <- tolower(tools::file_ext(changes$modified))
 
-        is_hot_swappable <- length(changes$new) + length(changes$removed) ==
-            0 &&
+        is_hot_swappable <- length(exts) > 0L &&
             all(exts %in% hot_swappable)
 
         if (is_hot_swappable) {

@@ -1,77 +1,98 @@
 <script>
     (function() {
-        if (!document.getElementById('hotwater-reloader')) {
-            document.currentScript.id = "hotwater-reloader"
-            document.body.appendChild(document.currentScript)
-            let ws = new WebSocket('%s', ['pub.sp.nanomsg.org']);
-            ws.binaryType = "arraybuffer";
-
-            function stripTrailingNulls(u8) {
-                let end = u8.length;
-                while (end > 0 && u8[end - 1] === 0) end--;
-                return u8.subarray(0, end);
-            }
-
-            function newlink(url) {
-                const u = new URL(url, window.location.href);
-                u.searchParams.set('__hotwater', Date.now());
-                return u.toString();
-            }
-
-            function reloadCSS() {
-                document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
-                    const href = link.getAttribute('href');
-                    if (!href) return;
-                    const next = link.cloneNode(true);
-                    next.href = newlink(href);
-                    next.addEventListener('load', () => link.remove(), { once: true });
-                    link.parentNode.insertBefore(next, link.nextSibling);
-                });
-            }
-
-            function reloadImages() {
-                document.querySelectorAll('img').forEach((img) => {
-                    const src = img.getAttribute('src');
-                    if (!src) return;
-                    img.src = newlink(src);
-                });
-            }
-
-            ws.onmessage = (ev) => {
-                try {
-                    const u8 = stripTrailingNulls(new Uint8Array(ev.data));
-                    const text = new TextDecoder("utf-8").decode(u8);
-                    const msg = JSON.parse(text);
-                    switch (msg.type) {
-                        case "HW::resource": {
-                            const targets = msg.targets.map((v) => {
-                                return v.split('.').pop();
-                            });
-                            const unique_targets = [...new Set(targets)];
-
-                            if (unique_targets.includes("css")) {
-                                reloadCSS();
-                            }
-
-                            if (unique_targets.length > 1 || !unique_targets.includes("css")) {
-                                reloadImages();
-                            }
-
-                            break;
-                        }
-                        case "HW::page": {
-                            window.location.reload();
-                            break;
-                        }
-                        default: throw new Error(`Unkown payload ${msg.type}`)
-                    }
-                } catch (error) {
-                    console.log(error);
-                }
-            };
-        } else {
+        if (document.getElementById('hotwater-reloader')) {
             let checker = document.currentScript;
             checker.parentNode.removeChild(checker);
+            return;
         }
+
+        document.currentScript.id = "hotwater-reloader"
+        document.body.appendChild(document.currentScript)
+
+        function stripTrailingNulls(u8) {
+            let end = u8.length;
+            while (end > 0 && u8[end - 1] === 0) end--;
+            return u8.subarray(0, end);
+        }
+
+        function newlink(url) {
+            const u = new URL(url, window.location.href);
+            u.searchParams.set('__hotwater', Date.now());
+            return u.toString();
+        }
+
+        function reloadCSS() {
+            document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+                const href = link.getAttribute('href');
+                if (!href) return;
+                const next = link.cloneNode(true);
+                next.href = newlink(href);
+                next.addEventListener('load', () => link.remove(), { once: true });
+                link.parentNode.insertBefore(next, link.nextSibling);
+            });
+        }
+
+        function reloadImages() {
+            document.querySelectorAll('img').forEach((img) => {
+                const src = img.getAttribute('src');
+                if (!src) return;
+                if (/^(data:|blob:)/i.test(src)) return;
+                img.src = newlink(src);
+            });
+        }
+
+        function basename(path) {
+            try {
+                return new URL(path, window.location.href).pathname.split("/").pop();
+            } catch {
+                return String(path).split(/[?#]/)[0].replace(/\\/g, "/").split("/").pop();
+            }
+        }
+
+        let ws = new WebSocket('%s', ['pub.sp.nanomsg.org']);
+        ws.binaryType = "arraybuffer";
+
+        ws.onmessage = async (ev) => {
+            try {
+                let data = ev.data;
+                if (data instanceof Blob) data = await data.arrayBuffer();
+
+                const u8 = stripTrailingNulls(new Uint8Array(data));
+                const text = new TextDecoder("utf-8").decode(u8);
+                const msg = JSON.parse(text);
+
+                switch (msg.type) {
+                    case "HW::resource": {
+
+
+                        const targets = msg.targets.map((v) => {
+                            return basename(v);
+                        });
+                        const exts = targets.map((v) => {
+                            return v.split('.').pop();
+                        });
+
+                        const unique_exts = [...new Set(exts)];
+
+                        if (unique_exts.includes("css")) {
+                            reloadCSS();
+                        }
+
+                        if (!unique_exts.every(ext => ext === "css")) {
+                            reloadImages();
+                        }
+
+                        break;
+                    }
+                    case "HW::page": {
+                        window.location.reload();
+                        break;
+                    }
+                    default: throw new Error(`Unknown payload ${msg.type}`)
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
     })();
 </script>
