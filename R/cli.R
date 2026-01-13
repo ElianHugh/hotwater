@@ -18,7 +18,7 @@ cli_file_changed <- function(changes) {
 
 cli_hot_swapped <- function(changes) {
     n <- length(changes)
-    cli::cli_inform("Hot swapped assets ({n} file{?s})")
+    cli::cli_inform("Hot swapped assets ({n} file{?s}): {.file {changes}}")
 }
 
 cli_server_start_progress <- function(engine) {
