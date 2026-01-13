@@ -45,18 +45,28 @@ hot_swappable <- c(
 )
 
 run_engine <- function(engine) {
+    restart_pending <- FALSE
+    restart_due_at <- NULL
+    pending_restart_changes <- character()
+    restart_ms <- 300L
+
+
     callback <- function(changes) {
 
-        cli_file_changed(unique(unlist(changes, use.names = FALSE)))
+        changed_files <- unique(unlist(changes, use.names = FALSE))
 
-        exts <- tolower(unlist(lapply(changes, tools::file_ext), use.names=FALSE))
+        exts <- tolower(tools::file_ext(changed_files))
 
         is_hot_swappable <- length(exts) > 0L &&
             all(exts %in% hot_swappable)
 
+
+
         if (is_hot_swappable) {
+            cli_file_changed(changed_files)
+
             json <- jsonlite::toJSON(
-                list(type = "HW::resource", targets = list(changes$modified)),
+                list(type = "HW::resource", targets = list(changed_files)),
                 auto_unbox = TRUE
             )
             nanonext::send(
@@ -64,10 +74,16 @@ run_engine <- function(engine) {
                 json,
                 mode = "raw"
             )
-            cli_hot_swapped(unique(unlist(changes, use.names = FALSE)))
+            cli_hot_swapped(changed_files)
         } else {
-            teardown_engine(engine)
-            buildup_engine(engine)
+            restart_pending <<- TRUE
+            pending_restart_changes <<- unique(c(
+                pending_restart_changes,
+                unique(unlist(changes, use.names = FALSE))
+            ))
+            restart_due_at <<- Sys.time() + restart_ms / 1000
+            # teardown_engine(engine)
+            # buildup_engine(engine)
         }
     }
     on.exit({
@@ -89,6 +105,18 @@ run_engine <- function(engine) {
     repeat {
         Sys.sleep(0.05) # todo, allow this to be configured at some point
         drain_runner_log(engine)
+
+        if (isTRUE(restart_pending) && Sys.time() >= restart_due_at) {
+            cli_file_changed(pending_restart_changes)
+            restart_pending <- FALSE
+            restart_due_at <- NULL
+            pending_restart_changes <- character()
+
+
+            teardown_engine(engine)
+            buildup_engine(engine)
+        }
+
         current_state <- watch_directory(
             engine,
             current_state,
