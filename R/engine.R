@@ -246,12 +246,37 @@ drain_runner_log <- function(engine) {
     engine$logpos <- size
 
     if (nzchar(data)) {
+        if (grepl("=== HOTWATER_ERROR_BEGIN ===", data)) {
+            msg <- sub(
+            ".*=== HOTWATER_ERROR_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_ERROR_END ===.*",
+            "\\1",
+            data,
+            perl = TRUE
+            )
+            msg <- trimws(msg)
+            json <- jsonlite::toJSON(
+                list(
+                    type = "HW::error",
+                    error = msg
+                ),
+                auto_unbox = TRUE
+            )
+
+            nanonext::send(
+                engine$publisher,
+                json,
+                mode = "raw"
+            )
+        }
+
         data <- gsub(
             "=== HOTWATER_ERROR_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_ERROR_END ===",
             cli::col_red("\\1"),
             data,
             perl = TRUE
         )
+
+
 
         data <- gsub(
             "=== HOTWATER_WARNING_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_WARNING_END ===",
