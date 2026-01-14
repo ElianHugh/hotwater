@@ -75,18 +75,6 @@ run_engine <- function(engine) {
             ))
             hotswap_due_at <<- Sys.time() + hotswap_ms / 1000
 
-            # cli_file_changed(changed_files)
-
-            # json <- jsonlite::toJSON(
-            #     list(type = "HW::resource", targets = list(changed_files)),
-            #     auto_unbox = TRUE
-            # )
-            # nanonext::send(
-            #     engine$publisher,
-            #     json,
-            #     mode = "raw"
-            # )
-            # cli_hot_swapped(changed_files)
         } else {
             restart_pending <<- TRUE
             pending_restart_changes <<- unique(c(
@@ -94,8 +82,6 @@ run_engine <- function(engine) {
                 changed_files
             ))
             restart_due_at <<- Sys.time() + restart_ms / 1000
-            # teardown_engine(engine)
-            # buildup_engine(engine)
         }
     }
     on.exit({
@@ -123,8 +109,6 @@ run_engine <- function(engine) {
             isTRUE(hotswap_pending) &&
                 Sys.time() >= hotswap_due_at
         ) {
-            # cli_file_changed(pending_hotswap_changes)
-
             json <- jsonlite::toJSON(
                 list(
                     type = "HW::resource",

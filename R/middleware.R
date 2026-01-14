@@ -51,10 +51,6 @@ postserialise_hotwater <- function(js) {
 }
 
 publish_browser_reload <- function(engine) {
-    # at the moment, the message itself is largely meaningless because we're faking the
-    # protocol on the javascript side of things
-    # may be worth getting a minimal protocol working down the line on the JS side so we can send
-    # specific messages to the browser
     json <- jsonlite::toJSON(
         list(type = "HW::page"),
         auto_unbox = TRUE
