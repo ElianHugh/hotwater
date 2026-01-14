@@ -15,6 +15,7 @@ injection <- function(engine) {
 middleware <- function(engine) {
     js <- injection(engine)
     hook <- postserialise_hotwater(js)
+    pid <- Sys.getpid()
     function(pr) {
         # remove hotwater from the api spec
         plumber::pr_set_api_spec(pr, function(spec) {
@@ -25,7 +26,7 @@ middleware <- function(engine) {
         plumber::pr_get(
             pr,
             "/__hotwater__",
-            function() "running",
+            function() pid,
             serializer = plumber::serializer_text(),
             preempt = "__first__"
         )
@@ -66,10 +67,13 @@ is_plumber_running <- function(engine) {
                 engine$config$host,
                 engine$config$port
             )
-            res <- httr2::resp_status(
-                httr2::req_perform(httr2::request(url))
-            )
-            res == 200L
+
+            req <- httr2::request(url)
+            resp <- httr2::req_perform(req)
+            status <- httr2::resp_status(resp)
+            content <- httr2::resp_body_string(resp)
+
+            status == 200L && as.integer(content) == Sys.getpid()
         },
         error = function(e) {
             FALSE
