@@ -48,17 +48,19 @@ test_that("middleware injection works with filters", {
 
 test_that("is_plumber_running works", {
     engine <- new_test_engine()
+    pid <- Sys.getpid()
     router <- mirai::mirai(
         {
             plumber::pr(config$entry_path) |>
                 plumber::pr_get(
                     "/__hotwater__",
-                    function() "running",
+                    function() pid,
                     serializer = plumber::serializer_text()
                 ) |>
                 plumber::pr_run(port = config$port)
         },
         config = engine$config,
+        pid = pid,
         .compute = engine$config$runner_compute
     )
     i <- 1L
