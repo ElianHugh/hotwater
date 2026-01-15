@@ -10,9 +10,12 @@ test_that("middleware injection works", {
     fn <- middleware(dummy_engine)
     router <- fn(plumber::pr())
     expect_s3_class(router$routes$`__hotwater__`, "PlumberEndpoint")
+
     expect_identical(
         router$`.__enclos_env__`$private$hooks$postserialize[[1L]],
-        postserialise_hotwater(injection(dummy_engine))
+        postserialise_hotwater(
+            '<script src="/__hotwater__/client.js"></script>'
+        )
     )
 })
 
@@ -96,7 +99,7 @@ test_that("autoreloader is attached", {
     expect_true(
         grepl(
             httr2::resp_body_string(resp),
-            pattern = "<script>"
+            pattern = '<script src="/__hotwater__/client.js"></script>'
         )
     )
     cleanup_test_engine(engine)

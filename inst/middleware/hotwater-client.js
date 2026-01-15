@@ -1,0 +1,180 @@
+(function() {
+    if (document.getElementById('hotwater-reloader')) {
+        let checker = document.currentScript;
+        checker.parentNode.removeChild(checker);
+        return;
+    }
+
+    document.currentScript.id = "hotwater-reloader"
+    document.head.appendChild(document.currentScript)
+
+    if (window.__hotwater_reloader_started) return;
+    window.__hotwater_reloader_started = true;
+
+    function stripTrailingNulls(u8) {
+        let end = u8.length;
+        while (end > 0 && u8[end - 1] === 0) end--;
+        return u8.subarray(0, end);
+    }
+
+    function newlink(url) {
+        const u = new URL(url, window.location.href);
+        u.searchParams.set('__hotwater', Date.now());
+        return u.toString();
+    }
+
+    function reloadCSS(targets) {
+        document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+            const href = link.getAttribute('href');
+            if (!href) return;
+
+            if (!targets.includes(basename(href))) return;
+
+            const next = link.cloneNode(true);
+            next.href = newlink(href);
+            next.addEventListener('load', () => link.remove(), { once: true });
+
+            next.addEventListener('error', () => {
+                next.remove();
+                console.warn("hotwater: CSS swap failed (missing file?):", href);
+            }, { once: true });
+
+            link.parentNode.insertBefore(next, link.nextSibling);
+        });
+    }
+
+    function reloadImages(targets) {
+        const rewriteSrcset = (srcset, targets) => {
+            return srcset
+                .split(',')
+                .map(e => {
+                    const parts = e.trim().split(/\s+/);
+                    const url = parts[0];
+                    const desc = parts.slice(1).join(' ');
+
+                    if (targets.includes(basename(url))) {
+                        const next = newlink(url);
+                        return desc ? `${next} ${desc}` : next;
+                    }
+                    return e.trim();
+                })
+                .join(', ')
+        };
+
+
+        document.querySelectorAll('img').forEach((img) => {
+            const src = img.getAttribute('src');
+            const srcset = img.getAttribute('srcset');
+
+            if (srcset) {
+                img.setAttribute('srcset', rewriteSrcset(srcset, targets));
+                return;
+            }
+
+            if (!src) return;
+            if (!targets.includes(basename(src))) return;
+            if (/^(data:|blob:)/i.test(src)) return;
+
+            img.src = newlink(src);
+        });
+
+        document.querySelectorAll('picture source[srcset]').forEach(el => {
+            const srcset = el.getAttribute('srcset');
+            if (!srcset) return;
+            el.setAttribute('srcset', rewriteSrcset(srcset, targets));
+        });
+    }
+
+    function basename(path) {
+        try {
+            return new URL(path, window.location.href).pathname.split("/").pop();
+        } catch {
+            return String(path).split(/[?#]/)[0].replace(/\\/g, "/").split("/").pop();
+        }
+    }
+
+
+    let ws = null;
+    let everConnected = false;
+
+
+    function startSocket() {
+        if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+            return;
+        }
+
+        ws = new WebSocket('%s', ['pub.sp.nanomsg.org']);
+        ws.binaryType = "arraybuffer";
+
+        ws.onopen = () => {
+            if (everConnected) {
+                window.location.reload();
+            }
+            everConnected = true;
+        };
+
+        ws.onmessage = async (ev) => {
+            try {
+                let data = ev.data;
+                if (data instanceof Blob) data = await data.arrayBuffer();
+
+                const u8 = stripTrailingNulls(new Uint8Array(data));
+                const text = new TextDecoder("utf-8").decode(u8);
+                const msg = JSON.parse(text);
+
+                switch (msg.type) {
+                    case "HW::resource": {
+
+                        const targets = msg.targets.map((v) => {
+                            return basename(v);
+                        });
+                        const exts = targets.map((v) => {
+                            return v.split('.').pop();
+                        });
+
+                        const unique_exts = [...new Set(exts)];
+
+                        if (unique_exts.includes("css")) {
+                            const css_targets = targets.filter((v) => {
+                                return v.includes(".css");
+                            });
+                            reloadCSS(css_targets);
+                        }
+
+                        if (!unique_exts.every(ext => ext === "css")) {
+                            const asset_targets = targets.filter((v) => {
+                                return !v.includes(".css");
+                            });
+                            reloadImages(asset_targets);
+                        }
+
+                        break;
+                    }
+                    case "HW::page": {
+                        window.location.reload();
+                        break;
+                    }
+                    case "HW::error": {
+                        console.warn(`hotwater: ${msg.error}`);
+                        break;
+                    }
+                    default: throw new Error(`Unknown payload ${msg.type}`)
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        ws.onclose = (ev) => {
+            ws = null;
+            setTimeout(startSocket, 5000);
+        }
+
+        ws.onerror = () => {
+            console.warn("hotwater: error");
+        }
+    }
+
+
+    startSocket();
+})();

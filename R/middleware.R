@@ -3,17 +3,25 @@
 
 injection <- function(engine) {
     injection_lines <- readLines(
-        system.file("middleware", "injection.html", package = "hotwater", mustWork = TRUE)
+        system.file(
+            "middleware",
+            "hotwater-client.js",
+            package = "hotwater",
+            mustWork = TRUE
+        )
     )
-
     sprintf(
         paste(injection_lines, collapse = "\n"),
         engine$publisher$listener[[1L]]$url
     )
 }
 
+
 middleware <- function(engine) {
-    js <- injection(engine)
+    js <- '<script src="/__hotwater__/client.js"></script>'
+    js_path <- injection(engine)
+
+
     hook <- postserialise_hotwater(js)
     pid <- Sys.getpid()
     function(pr) {
@@ -29,6 +37,20 @@ middleware <- function(engine) {
             function() pid,
             serializer = plumber::serializer_text(),
             preempt = "__first__"
+        )
+        plumber::pr_get(
+            pr,
+            "/__hotwater__/client.js",
+            function(req, res) {
+                res$setHeader("Cache-Control", "no-store")
+                js_path
+            },
+            serializer = plumber::serializer_content_type(
+                "application/javascript",
+                function(val) {
+                    as.character(val)
+                }
+            )
         )
         plumber::pr_hook(
             pr,
