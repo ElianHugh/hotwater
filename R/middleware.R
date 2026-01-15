@@ -28,6 +28,7 @@ middleware <- function(engine) {
         # remove hotwater from the api spec
         plumber::pr_set_api_spec(pr, function(spec) {
             spec$paths[["/__hotwater__"]] <- NULL
+            spec$paths[["/__hotwater__/client.js"]] <- NULL
             spec
         })
         # the dummy path is needed for pinging the server from hotwater

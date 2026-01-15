@@ -29,3 +29,4 @@ test_that("can kill engine", {
     expect_false(is_runner_alive(engine))
     cleanup_test_engine(engine)
 })
+
