@@ -96,7 +96,7 @@ new_runner <- function(engine) {
         Sys.sleep(0.1)
     }
 
-    if (i == timeout && !is_plumber_running(engine)) {
+    if (!is_runner_alive(engine) || !is_plumber_running(engine)) {
         return(FALSE)
     }
 

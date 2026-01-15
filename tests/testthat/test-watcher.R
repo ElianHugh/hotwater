@@ -37,10 +37,10 @@ directory_state_old <- function() {
 
 test_that("file watcher works", {
     changes <- get_changed_files(directory_state_old(), directory_state_new())
-    expect_true(did_files_change(changes))
+    expect_true(did_files_change((changes)))
     expect_identical(
         sort(c("./R/run.R", "./R/deleted.R", "./R/new.R")), # nolint: nonportable_path_linter.
-        sort(changes)
+        sort(unlist(changes, use.names=FALSE))
     )
 })
 
@@ -48,13 +48,13 @@ test_that("file watcher works", {
 # implementation details here
 test_that("directory_state returns expected file state", {
     local({
-        watcher_dir <<- withr::local_tempdir("testdir")
+        watcher_dir <- withr::local_tempdir("testdir")
         writeLines("Hello world", file.path(watcher_dir, "hello.R"))
         writeLines("Bye world", file.path(watcher_dir, "bye.R"))
         file.create(file.path(watcher_dir, "empty.R"))
         state <- directory_state(watcher_dir, "*.gitignore")
-        expect_length(state, 2L)
-        expect_length(names(state), 2L)
+        expect_length(state,3L)
+        expect_length(names(state), 3L)
         expect_s3_class(state, c("POSIXct", "POSIXt"))
     })
 })

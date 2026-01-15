@@ -13,7 +13,34 @@ new_config <- function(...) {
     ignore <- dots$ignore %||%
         utils::glob2rx(
             paste(
-                c("*.sqlite", "*.git*"),
+                c(
+                    # dbs
+                    "*.sqlite",
+                    "*.sqlite3",
+                    "*.db",
+                    "*.db-journal",
+                    "*.db-wal",
+                    "*.db-shm",
+
+                    #os
+                    ".DS_Store",
+                    "Thumbs.db",
+
+                    # git
+                    "*.git*",
+                    ".git/*",
+                    ".gitignore",
+                    ".gitmodules",
+
+                    # R
+
+                    ".Rhistory",
+                    ".RData",
+                    ".Ruserdata",
+                    ".Rproj.user/*",
+
+                    "*/.*"
+                ),
                 collapse = "|"
             )
         )

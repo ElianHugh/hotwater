@@ -10,9 +10,12 @@ test_that("middleware injection works", {
     fn <- middleware(dummy_engine)
     router <- fn(plumber::pr())
     expect_s3_class(router$routes$`__hotwater__`, "PlumberEndpoint")
+
     expect_identical(
         router$`.__enclos_env__`$private$hooks$postserialize[[1L]],
-        postserialise_hotwater(injection(dummy_engine))
+        postserialise_hotwater(
+            '<script src="/__hotwater__/client.js"></script>'
+        )
     )
 })
 
@@ -48,17 +51,19 @@ test_that("middleware injection works with filters", {
 
 test_that("is_plumber_running works", {
     engine <- new_test_engine()
+    pid <- Sys.getpid()
     router <- mirai::mirai(
         {
             plumber::pr(config$entry_path) |>
                 plumber::pr_get(
                     "/__hotwater__",
-                    function() "running",
+                    function() pid,
                     serializer = plumber::serializer_text()
                 ) |>
                 plumber::pr_run(port = config$port)
         },
         config = engine$config,
+        pid = pid,
         .compute = engine$config$runner_compute
     )
     i <- 1L
@@ -94,7 +99,7 @@ test_that("autoreloader is attached", {
     expect_true(
         grepl(
             httr2::resp_body_string(resp),
-            pattern = "<script>"
+            pattern = '<script src="/__hotwater__/client.js"></script>'
         )
     )
     cleanup_test_engine(engine)

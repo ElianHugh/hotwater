@@ -3,31 +3,55 @@
 
 injection <- function(engine) {
     injection_lines <- readLines(
-        system.file("middleware", "injection.html", package = "hotwater", mustWork = TRUE)
+        system.file(
+            "middleware",
+            "hotwater-client.js",
+            package = "hotwater",
+            mustWork = TRUE
+        )
     )
-
     sprintf(
         paste(injection_lines, collapse = "\n"),
         engine$publisher$listener[[1L]]$url
     )
 }
 
+
 middleware <- function(engine) {
-    js <- injection(engine)
+    js <- '<script src="/__hotwater__/client.js"></script>'
+    js_path <- injection(engine)
+
+
     hook <- postserialise_hotwater(js)
+    pid <- Sys.getpid()
     function(pr) {
         # remove hotwater from the api spec
         plumber::pr_set_api_spec(pr, function(spec) {
             spec$paths[["/__hotwater__"]] <- NULL
+            spec$paths[["/__hotwater__/client.js"]] <- NULL
             spec
         })
         # the dummy path is needed for pinging the server from hotwater
         plumber::pr_get(
             pr,
             "/__hotwater__",
-            function() "running",
+            function() pid,
             serializer = plumber::serializer_text(),
             preempt = "__first__"
+        )
+        plumber::pr_get(
+            pr,
+            "/__hotwater__/client.js",
+            function(req, res) {
+                res$setHeader("Cache-Control", "no-store")
+                js_path
+            },
+            serializer = plumber::serializer_content_type(
+                "application/javascript",
+                function(val) {
+                    as.character(val)
+                }
+            )
         )
         plumber::pr_hook(
             pr,
@@ -51,11 +75,11 @@ postserialise_hotwater <- function(js) {
 }
 
 publish_browser_reload <- function(engine) {
-    # at the moment, the message itself is largely meaningless because we're faking the
-    # protocol on the javascript side of things
-    # may be worth getting a minimal protocol working down the line on the JS side so we can send
-    # specific messages to the browser
-    nanonext::send(engine$publisher, "start")
+    json <- jsonlite::toJSON(
+        list(type = "HW::page"),
+        auto_unbox = TRUE
+    )
+    nanonext::send(engine$publisher, json, mode="raw")
 }
 
 is_plumber_running <- function(engine) {
@@ -66,10 +90,13 @@ is_plumber_running <- function(engine) {
                 engine$config$host,
                 engine$config$port
             )
-            res <- httr2::resp_status(
-                httr2::req_perform(httr2::request(url))
-            )
-            res == 200L
+
+            req <- httr2::request(url)
+            resp <- httr2::req_perform(req)
+            status <- httr2::resp_status(resp)
+            content <- httr2::resp_body_string(resp)
+
+            status == 200L && as.integer(content) == Sys.getpid()
         },
         error = function(e) {
             FALSE

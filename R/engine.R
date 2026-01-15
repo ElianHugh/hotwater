@@ -32,11 +32,57 @@ new_engine <- function(config) {
     eng
 }
 
+hot_swappable <- c(
+    "css",
+    "png",
+    "jpg",
+    "jpeg",
+    "gif",
+    "svg",
+    "webp",
+    "ico",
+    "avif"
+)
+
 run_engine <- function(engine) {
+    restart_pending <- FALSE
+    restart_due_at <- NULL
+    pending_restart_changes <- character()
+    restart_ms <- 300L
+
+    hotswap_pending <- FALSE
+    hotswap_due_at <- NULL
+    pending_hotswap_changes <- character()
+    hotswap_ms <- 120L
+
+
     callback <- function(changes) {
-        cli_file_changed(changes)
-        teardown_engine(engine)
-        buildup_engine(engine)
+
+        changed_files <- unique(unlist(changes, use.names = FALSE))
+
+        exts <- tolower(tools::file_ext(changed_files))
+
+        is_hot_swappable <- length(exts) > 0L &&
+            all(exts %in% hot_swappable)
+
+
+
+        if (is_hot_swappable) {
+            hotswap_pending <<- TRUE
+            pending_hotswap_changes <<- unique(c(
+                pending_hotswap_changes,
+                changed_files
+            ))
+            hotswap_due_at <<- Sys.time() + hotswap_ms / 1000
+
+        } else {
+            restart_pending <<- TRUE
+            pending_restart_changes <<- unique(c(
+                pending_restart_changes,
+                changed_files
+            ))
+            restart_due_at <<- Sys.time() + restart_ms / 1000
+        }
     }
     on.exit({
         teardown_engine(engine)
@@ -57,11 +103,52 @@ run_engine <- function(engine) {
     repeat {
         Sys.sleep(0.05) # todo, allow this to be configured at some point
         drain_runner_log(engine)
+
+        if (
+            !isTRUE(restart_pending) &&
+            isTRUE(hotswap_pending) &&
+                Sys.time() >= hotswap_due_at
+        ) {
+            json <- jsonlite::toJSON(
+                list(
+                    type = "HW::resource",
+                    targets = list(pending_hotswap_changes)
+                ),
+                auto_unbox = TRUE
+            )
+            nanonext::send(
+                engine$publisher,
+                json,
+                mode = "raw"
+            )
+            cli_hot_swapped(pending_hotswap_changes)
+
+            hotswap_pending <- FALSE
+            hotswap_due_at <- NULL
+            pending_hotswap_changes <- character()
+        }
+
+        if (isTRUE(restart_pending) && Sys.time() >= restart_due_at) {
+            cli_file_changed(pending_restart_changes)
+            restart_pending <- FALSE
+            restart_due_at <- NULL
+            pending_restart_changes <- character()
+
+            hotswap_pending <- FALSE
+            hotswap_due_at <- NULL
+            pending_hotswap_changes <- character()
+
+
+            teardown_engine(engine)
+            buildup_engine(engine)
+        }
+
         current_state <- watch_directory(
             engine,
             current_state,
             callback
         )
+
     }
 }
 
@@ -87,13 +174,13 @@ buildup_engine <- function(engine) {
 
     if (!res) {
         cli::cli_progress_done(result = "failed")
+        stop("Failed to start Plumber server.")
     } else {
         publish_browser_reload(engine)
         cli::cli_progress_done()
+        cli_watching_directory(engine)
+        drain_runner_log(engine)
     }
-
-    cli_watching_directory(engine)
-    drain_runner_log(engine)
 }
 
 teardown_engine <- function(engine) {
@@ -144,12 +231,37 @@ drain_runner_log <- function(engine) {
     engine$logpos <- size
 
     if (nzchar(data)) {
+        if (grepl("=== HOTWATER_ERROR_BEGIN ===", data)) {
+            msg <- sub(
+            ".*=== HOTWATER_ERROR_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_ERROR_END ===.*",
+            "\\1",
+            data,
+            perl = TRUE
+            )
+            msg <- trimws(msg)
+            json <- jsonlite::toJSON(
+                list(
+                    type = "HW::error",
+                    error = msg
+                ),
+                auto_unbox = TRUE
+            )
+
+            nanonext::send(
+                engine$publisher,
+                json,
+                mode = "raw"
+            )
+        }
+
         data <- gsub(
             "=== HOTWATER_ERROR_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_ERROR_END ===",
             cli::col_red("\\1"),
             data,
             perl = TRUE
         )
+
+
 
         data <- gsub(
             "=== HOTWATER_WARNING_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_WARNING_END ===",
