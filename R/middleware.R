@@ -16,14 +16,63 @@ injection <- function(engine) {
     )
 }
 
+publish_browser_reload <- function(engine) {
+    json <- jsonlite::toJSON(
+        list(type = "HW::page"),
+        auto_unbox = TRUE
+    )
+    nanonext::send(engine$publisher, json, mode = "raw")
+}
 
-middleware <- function(engine) {
+is_api_running <- function(engine) {
+    tryCatch(
+        expr = {
+            url <- sprintf(
+                "%s:%s/__hotwater__",
+                engine$config$host,
+                engine$config$port
+            )
+
+            req <- httr2::request(url)
+            resp <- httr2::req_perform(req)
+            status <- httr2::resp_status(resp)
+            content <- httr2::resp_body_string(resp)
+
+            status == 200L && as.integer(content) == Sys.getpid()
+        },
+        error = function(e) {
+            FALSE
+        }
+    )
+}
+
+middleware <- function(engine, ...) {
+    UseMethod("middleware", engine)
+}
+
+
+
+postserialise_hotwater <- function(js) {
+    function(value) {
+        if (length(value$error) > 0L) {
+            return(value)
+        }
+        if (grepl("text/html", value$headers[["Content-Type"]])) {
+            # nolint: nonportable_path_linter.
+            value$headers[["Cache-Control"]] <- "no-cache"
+            value$body <- paste(c(value$body, js), collapse = "\n")
+        }
+        value
+    }
+}
+
+middleware.plumber_engine <- function(engine, ...) {
+    pid <- Sys.getpid()
     js <- '<script src="/__hotwater__/client.js"></script>'
     js_path <- injection(engine)
 
-
     hook <- postserialise_hotwater(js)
-    pid <- Sys.getpid()
+
     function(pr) {
         # remove hotwater from the api spec
         plumber::pr_set_api_spec(pr, function(spec) {
@@ -59,47 +108,4 @@ middleware <- function(engine) {
             hook
         )
     }
-}
-
-postserialise_hotwater <- function(js) {
-    function(value) {
-        if (length(value$error) > 0L) {
-            return(value)
-        }
-        if (grepl("text/html", value$headers[["Content-Type"]])) { # nolint: nonportable_path_linter.
-            value$headers[["Cache-Control"]] <- "no-cache"
-            value$body <- paste(c(value$body, js), collapse = "\n")
-        }
-        value
-    }
-}
-
-publish_browser_reload <- function(engine) {
-    json <- jsonlite::toJSON(
-        list(type = "HW::page"),
-        auto_unbox = TRUE
-    )
-    nanonext::send(engine$publisher, json, mode="raw")
-}
-
-is_plumber_running <- function(engine) {
-    tryCatch(
-        expr = {
-            url <- sprintf(
-                "%s:%s/__hotwater__",
-                engine$config$host,
-                engine$config$port
-            )
-
-            req <- httr2::request(url)
-            resp <- httr2::req_perform(req)
-            status <- httr2::resp_status(resp)
-            content <- httr2::resp_body_string(resp)
-
-            status == 200L && as.integer(content) == Sys.getpid()
-        },
-        error = function(e) {
-            FALSE
-        }
-    )
 }

@@ -4,25 +4,78 @@
 new_runner <- function(engine) {
     stopifnot(is_engine(engine))
 
+    spec <- runner_spec(engine)
+    engine$runner <- spawn_runner(engine, spec)
+
+    i <- 0L
+    timeout <- 1000L
+
+    repeat {
+        i <- i + 1L
+        try(
+            cli::cli_progress_update(.envir = parent.frame(n = 1L)),
+            silent = TRUE
+        )
+
+        if (i >= timeout || !is_runner_alive(engine) || is_api_running(engine)) {
+            break
+        }
+
+        Sys.sleep(0.1)
+    }
+
+    if (!is_runner_alive(engine) || !is_api_running(engine)) {
+        return(FALSE)
+    }
+
+    TRUE
+}
+
+kill_runner <- function(engine) {
+    stopifnot(is_engine(engine))
+    mirai::daemons(0L, .compute = engine$config$runner_compute)
+    !is_runner_alive(engine)
+}
+
+is_runner_alive <- function(engine) {
+    stopifnot(is_engine(engine))
+    mirai::unresolved(engine$runner)
+}
+
+get_kill_signal <- function() {
+    tools::SIGKILL %|NA|%
+        tools::SIGTERM %|NA|%
+        tools::SIGINT
+}
+
+runner_spec <- function(engine) {
+  list(
+    port = engine$config$port,
+    path = engine$config$entry_path,
+    host = engine$config$host,
+    mdware = middleware(engine),
+    mod = file.path(getwd(), engine$config$entry_path),
+    logpath = engine$logpath,
+    compute = engine$config$runner_compute
+  )
+}
+
+spawn_runner <- function(engine, spec, ...) {
+    UseMethod("spawn_runner")
+}
+
+spawn_runner.plumber_engine <- function(engine, spec, ...) {
     mirai::daemons(
         n = 1L,
         dispatcher = FALSE,
         resilience = FALSE,
         autoexit = get_kill_signal(),
         output = FALSE,
-        .compute = engine$config$runner_compute
+        .compute = spec$compute
     )
 
-    port <- engine$config$port
-    path <- engine$config$entry_path
-    mdware <- middleware(engine)
-    mod <- file.path(getwd(), engine$config$entry_path)
-    host <- engine$config$host
-    logpath <- engine$logpath
-
-    engine$runner <- mirai::mirai(
+    mirai::mirai(
         {
-
             con <- file(logpath, open = "at")
             sink(con)
             sink(con, type = "message")
@@ -66,56 +119,15 @@ new_runner <- function(engine) {
                     invokeRestart("muffleWarning")
                 }
             )
-
         },
         .args = list(
-            port = port,
-            path = path,
-            host = host,
-            mdware = mdware,
-            mod = mod,
-            logpath = logpath
+            port = spec$port,
+            path = spec$path,
+            host = spec$host,
+            mdware = spec$mdware,
+            mod = spec$mod,
+            logpath = spec$logpath
         ),
-        .compute = engine$config$runner_compute
+        .compute = spec$compute
     )
-
-    i <- 0L
-    timeout <- 1000L
-
-    repeat {
-        i <- i + 1L
-        try(
-            cli::cli_progress_update(.envir = parent.frame(n = 1L)),
-            silent = TRUE
-        )
-
-        if (i >= timeout || !is_runner_alive(engine) || is_plumber_running(engine)) {
-            break
-        }
-
-        Sys.sleep(0.1)
-    }
-
-    if (!is_runner_alive(engine) || !is_plumber_running(engine)) {
-        return(FALSE)
-    }
-
-    TRUE
-}
-
-kill_runner <- function(engine) {
-    stopifnot(is_engine(engine))
-    mirai::daemons(0L, .compute = engine$config$runner_compute)
-    !is_runner_alive(engine)
-}
-
-is_runner_alive <- function(engine) {
-    stopifnot(is_engine(engine))
-    mirai::unresolved(engine$runner)
-}
-
-get_kill_signal <- function() {
-    tools::SIGKILL %|NA|%
-        tools::SIGTERM %|NA|%
-        tools::SIGINT
 }

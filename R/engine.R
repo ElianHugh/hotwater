@@ -22,7 +22,8 @@ new_engine <- function(config) {
                 logpos = 0L
             )
         ),
-        class = c("hotwater_engine", "environment")
+        # todo
+        class = c("hotwater_engine", "environment", "plumber_engine")
     )
 
     reg.finalizer(eng, function(e) {
@@ -64,8 +65,6 @@ run_engine <- function(engine) {
 
         is_hot_swappable <- length(exts) > 0L &&
             all(exts %in% hot_swappable)
-
-
 
         if (is_hot_swappable) {
             hotswap_pending <<- TRUE
@@ -260,8 +259,6 @@ drain_runner_log <- function(engine) {
             data,
             perl = TRUE
         )
-
-
 
         data <- gsub(
             "=== HOTWATER_WARNING_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_WARNING_END ===",
