@@ -106,6 +106,8 @@
         ws = new WebSocket('%s', ['pub.sp.nanomsg.org']);
         ws.binaryType = "arraybuffer";
 
+
+
         ws.onopen = () => {
             if (everConnected) {
                 window.location.reload();

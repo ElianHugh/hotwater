@@ -36,9 +36,11 @@ is_api_running <- function(engine) {
             req <- httr2::request(url)
             resp <- httr2::req_perform(req)
             status <- httr2::resp_status(resp)
-            content <- httr2::resp_body_string(resp)
+            content <- httr2::resp_body_string(resp) |>
+                as.integer()
 
-            status == 200L && as.integer(content) == Sys.getpid()
+            status == 200L && !is.na(content) && content == Sys.getpid()
+
         },
         error = function(e) {
             FALSE
@@ -120,35 +122,57 @@ middleware.plumber2_engine <- function(engine, ...) {
     js <- '<script src="/__hotwater__/client.js"></script>'
     js_path <- injection(engine)
 
-    plumber2::register_serializer(
-        "javascript",
-        function(...) {
-            function(x) {
-                paste(as.character(unlist(x)), collapse = sep)
-            }
-        },
-        mime_type = "application/javascript"
-    )
+    plumber_html_serialiser <- plumber2::get_serializers("html")[[1L]]
+
 
     function(api) {
+        plumber2::register_serializer(
+            "html",
+            function(...) {
+                function(x) {
+                    x <- plumber_html_serialiser(x)
+                    paste(as.character(unlist(c(x, js))), collapse = "\n")
+                }
+            },
+            mime_type = "text/html",
+            default = TRUE
+        )
+
+        plumber2::register_serializer(
+            name = "javascript",
+            function(...) {
+                function(x) {
+                    paste(as.character(unlist(x)), collapse = "\n")
+                }
+            },
+            mime_type = "application/javascript"
+        )
+
+        api <- plumber2::api_add_route(
+            api,
+            "__hotwater__",
+            after = 0L,
+            root = ""
+        )
+
         api <- plumber2::api_get(
             api,
             path = "/__hotwater__",
             handler = function(req, res) pid,
             serializer = plumber2::get_serializers("text"),
+            route = "__hotwater__",
             use_strict_serializer = FALSE
         )
         api <- plumber2::api_get(
             api,
             path = "/__hotwater__/client.js",
-            handler = function(req, res) {
-                res$set_header("Cache-Control", "no-store")
+            handler = function(response) {
+                response$set_header("Cache-Control", "no-store")
                 js_path
             },
+            route = "__hotwater__",
             serializer = plumber2::get_serializers("javascript")
         )
-
-        # the hook?
 
         api
     }

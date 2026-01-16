@@ -37,8 +37,6 @@ new_runner <- function(engine) {
     }
 
     if (!is_runner_alive(engine) || !is_api_running(engine)) {
-        print("here")
-        print(is_api_running(engine))
         return(FALSE)
     }
 
