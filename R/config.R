@@ -4,6 +4,8 @@
 new_config <- function(...) {
     dots <- list(...)
 
+
+    # todo
     host <- dots$host %||%
         plumber::get_option_or_env("plumber.host") %||%
         "127.0.0.1"
@@ -60,7 +62,8 @@ new_config <- function(...) {
             ),
             ignore = ignore,
             runner_compute = "hotwater_runner",
-            type = "plumber"
+            # todo
+            type = "plumber2"
         ),
         class = c("hotwater_config", "list")
     )

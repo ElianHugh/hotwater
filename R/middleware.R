@@ -36,8 +36,8 @@ is_api_running <- function(engine) {
             req <- httr2::request(url)
             resp <- httr2::req_perform(req)
             status <- httr2::resp_status(resp)
-            content <- httr2::resp_body_string(resp) |>
-                as.integer()
+            content <- httr2::resp_body_string(resp)
+            content <- as.integer(content)
 
             status == 200L && !is.na(content) && content == Sys.getpid()
 
@@ -73,6 +73,13 @@ middleware.default <- function(engine, ...) {
 
 #' @exportS3Method
 middleware.plumber_engine <- function(engine, ...) {
+    if (!requireNamespace("plumber", quietly = TRUE)) {
+        stop(
+            "plumber is required but is not installed.",
+            call. = FALSE
+        )
+    }
+
     pid <- Sys.getpid()
     js <- '<script src="/__hotwater__/client.js"></script>'
     js_path <- injection(engine)
@@ -118,6 +125,15 @@ middleware.plumber_engine <- function(engine, ...) {
 
 #' @exportS3Method
 middleware.plumber2_engine <- function(engine, ...) {
+    if (!requireNamespace("plumber2", quietly = TRUE)) {
+        stop(
+            "plumber2 is required but is not installed.",
+            call. = FALSE
+        )
+    }
+
+
+
     pid <- Sys.getpid()
     js <- '<script src="/__hotwater__/client.js"></script>'
     js_path <- injection(engine)

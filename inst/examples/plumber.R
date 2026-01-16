@@ -5,7 +5,8 @@ list()
 #' @serializer html
 function() {
     '
-    <html>
+    <!DOCTYPE html>
+    <html lang="en-AU">
     <head>
         <link rel="stylesheet" href="./main.css"/>
     </head>

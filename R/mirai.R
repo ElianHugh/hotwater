@@ -78,6 +78,14 @@ spawn_runner <- function(engine, spec, ...) {
 
 #' @exportS3Method
 spawn_runner.plumber_engine <- function(engine, spec, ...) {
+    if (!requireNamespace("plumber", quietly = TRUE)) {
+        stop(
+            "plumber is required but is not installed.",
+            call. = FALSE
+        )
+    }
+
+
     mirai::mirai(
         {
             con <- file(logpath, open = "at")
@@ -138,6 +146,13 @@ spawn_runner.plumber_engine <- function(engine, spec, ...) {
 
 #' @exportS3Method
 spawn_runner.plumber2_engine <- function(engine, spec, ...) {
+    if (!requireNamespace("plumber2", quietly = TRUE)) {
+        stop(
+            "plumber2 is required but is not installed.",
+            call. = FALSE
+        )
+    }
+
     mirai::mirai(
         {
             con <- file(logpath, open = "at")
