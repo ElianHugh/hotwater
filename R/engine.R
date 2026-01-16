@@ -23,7 +23,7 @@ new_engine <- function(config) {
             )
         ),
         # todo
-        class = c("hotwater_engine", "environment", "plumber_engine")
+        class = c("hotwater_engine", "environment", "plumber2_engine")
     )
 
     reg.finalizer(eng, function(e) {
@@ -173,7 +173,7 @@ buildup_engine <- function(engine) {
 
     if (!res) {
         cli::cli_progress_done(result = "failed")
-        stop("Failed to start Plumber server.")
+        stop("Failed to start server.")
     } else {
         publish_browser_reload(engine)
         cli::cli_progress_done()

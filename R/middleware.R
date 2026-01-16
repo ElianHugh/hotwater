@@ -46,12 +46,6 @@ is_api_running <- function(engine) {
     )
 }
 
-middleware <- function(engine, ...) {
-    UseMethod("middleware", engine)
-}
-
-
-
 postserialise_hotwater <- function(js) {
     function(value) {
         if (length(value$error) > 0L) {
@@ -66,6 +60,16 @@ postserialise_hotwater <- function(js) {
     }
 }
 
+middleware <- function(engine, ...) {
+    UseMethod("middleware")
+}
+
+#' @exportS3Method
+middleware.default <- function(engine, ...) {
+    stop("Unsupported engine type")
+}
+
+#' @exportS3Method
 middleware.plumber_engine <- function(engine, ...) {
     pid <- Sys.getpid()
     js <- '<script src="/__hotwater__/client.js"></script>'
@@ -107,5 +111,45 @@ middleware.plumber_engine <- function(engine, ...) {
             "postserialize",
             hook
         )
+    }
+}
+
+#' @exportS3Method
+middleware.plumber2_engine <- function(engine, ...) {
+    pid <- Sys.getpid()
+    js <- '<script src="/__hotwater__/client.js"></script>'
+    js_path <- injection(engine)
+
+    plumber2::register_serializer(
+        "javascript",
+        function(...) {
+            function(x) {
+                paste(as.character(unlist(x)), collapse = sep)
+            }
+        },
+        mime_type = "application/javascript"
+    )
+
+    function(api) {
+        api <- plumber2::api_get(
+            api,
+            path = "/__hotwater__",
+            handler = function(req, res) pid,
+            serializer = plumber2::get_serializers("text"),
+            use_strict_serializer = FALSE
+        )
+        api <- plumber2::api_get(
+            api,
+            path = "/__hotwater__/client.js",
+            handler = function(req, res) {
+                res$set_header("Cache-Control", "no-store")
+                js_path
+            },
+            serializer = plumber2::get_serializers("javascript")
+        )
+
+        # the hook?
+
+        api
     }
 }

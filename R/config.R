@@ -7,9 +7,11 @@ new_config <- function(...) {
     host <- dots$host %||%
         plumber::get_option_or_env("plumber.host") %||%
         "127.0.0.1"
+
     port <- dots$port %||%
         plumber::get_option_or_env("plumber.port") %||%
         new_port(host = host)
+
     ignore <- dots$ignore %||%
         utils::glob2rx(
             paste(
