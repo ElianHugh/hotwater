@@ -163,7 +163,9 @@ spawn_runner.plumber2_engine <- function(engine, spec, ...) {
                             mdware(plumber2::api(path)),
                             port = port,
                             host = host,
-                            block = TRUE
+                            block = TRUE,
+                            showcase = FALSE,
+                            silent = TRUE
                         )
                     },
                     error = function(e) {

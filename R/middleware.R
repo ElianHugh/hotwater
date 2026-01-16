@@ -124,7 +124,6 @@ middleware.plumber2_engine <- function(engine, ...) {
 
     plumber_html_serialiser <- plumber2::get_serializers("html")[[1L]]
 
-
     function(api) {
         plumber2::register_serializer(
             "html",

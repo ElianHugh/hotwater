@@ -23,7 +23,11 @@ new_engine <- function(config) {
             )
         ),
         # todo
-        class = c("hotwater_engine", "environment", "plumber2_engine")
+        class = c(
+            "hotwater_engine",
+            "environment",
+            sprintf("%s_engine", config$type)
+        )
     )
 
     reg.finalizer(eng, function(e) {

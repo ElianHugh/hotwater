@@ -59,7 +59,8 @@ new_config <- function(...) {
                 host = host
             ),
             ignore = ignore,
-            runner_compute = "hotwater_runner"
+            runner_compute = "hotwater_runner",
+            type = "plumber"
         ),
         class = c("hotwater_config", "list")
     )
