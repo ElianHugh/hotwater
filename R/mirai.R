@@ -1,6 +1,8 @@
 # this file contains the runner of the hotwater engine.
 # the "runner" is the subprocess that spawns the plumber API.
 
+utils::globalVariables(c("host", "logpath", "mdware", "mod", "path", "port"))
+
 new_runner <- function(engine) {
     stopifnot(is_engine(engine))
 

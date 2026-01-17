@@ -42,7 +42,7 @@ test_that("middleware injection works with filters", {
         Sys.sleep(0.5)
     }
 
-    resp <- httr2::request(sprintf("localhost:%s/__hotwater__", engine$config$port)) |>
+    resp <- httr2::request(sprintf("http://localhost:%s/__hotwater__", engine$config$port)) |>
         httr2::req_perform() |>
         httr2::resp_status()
 

@@ -63,7 +63,7 @@ new_config <- function(...) {
             ignore = ignore,
             runner_compute = "hotwater_runner",
             # todo
-            type = "plumber2"
+            type = "plumber"
         ),
         class = c("hotwater_config", "list")
     )
