@@ -115,21 +115,21 @@ validate_config <- function(config) {
         error_invalid_dir(invalid)
     }
 
-    if (!is.numeric(config$port)) {
+    if (!is.numeric(config$port) &&length(config$port) != 1L) {
         error_invalid_port(config$port)
     }
 
-    if (is.numeric(config$host)) {
+    if (is.numeric(config$host && length(config$host) != 1L)) {
         error_invalid_host(config$host)
     }
 
     if (
-        is.null(config$engine) ||
-            !is.character(config$engine) ||
-            !nzchar(config$engine) ||
-            length(config$engine) > 1L
+        is.null(config$type) ||
+            !is.character(config$type) ||
+            !nzchar(config$type) ||
+            length(config$type) > 1L
     ) {
-        error_invalid_engine(config$engine)
+        error_invalid_engine_type(config$type)
     }
 }
 
@@ -157,7 +157,7 @@ is_server_yml <- function(path) {
     !is.null(path) &&
        length(path) >= 1L &&
         any(grepl(
-            pattern = "^_server.ya?ml",
+            utils::glob2rx("*_server.ya?ml"),
             basename(path)
         ))
 }

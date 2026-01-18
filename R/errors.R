@@ -6,7 +6,7 @@ new_hotwater_warning <- function(type) {
     sprintf("hotwater_%s_warning", type)
 }
 
-error_invalid_engine <- function(engine) {
+error_invalid_engine_type <- function(engine) {
     cli::cli_abort(
         c(
             "Invalid engine: {.var {engine}}",
