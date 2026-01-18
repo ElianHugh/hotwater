@@ -8,11 +8,17 @@ new_config <- function(...) {
     yml_port <- NULL
     yml_engine_type <- NULL
 
-    if (basename(dots$path) == "_server.yml") {
+    if (basename(dots$path[[1L]]) == "_server.yml") {
         yml <- yaml::read_yaml(dots$path)
         yml_host <- yml$options$host
         yml_port <- yml$options$port
         yml_engine_type <- yml$engine
+
+        if (yml_engine_type == "plumber") {
+            # plumber only supports single entry file anyway
+            dir <- dirname(dots$path)
+            dots$path <- file.path(dir, yml$routes[[1L]])
+        }
     }
 
     engine_type <- yml_engine_type %||%
@@ -21,20 +27,20 @@ new_config <- function(...) {
 
     host <- dots$host %||%
         yml_host %||%
-        if(engine_type == "plumber") {
+        (if(engine_type == "plumber") {
             plumber::get_option_or_env("plumber.host")
          } else {
             NULL
-         } %||%
+        }) %||%
         "127.0.0.1"
 
     port <- dots$port %||%
         yml_port %||%
-        if (engine_type == "plumber") {
+        (if (engine_type == "plumber") {
             plumber::get_option_or_env("plumber.port")
         } else {
             NULL
-        } %||%
+        }) %||%
         new_port(host = host)
 
     ignore <- dots$ignore %||%

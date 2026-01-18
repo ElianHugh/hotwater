@@ -1,4 +1,4 @@
-engine: plumber2
+engine: plumber
 routes: plumber.R
 constructor: ~
 options: {
