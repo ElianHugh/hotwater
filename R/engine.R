@@ -22,7 +22,6 @@ new_engine <- function(config) {
                 logpos = 0L
             )
         ),
-        # todo
         class = c(
             "hotwater_engine",
             "environment",
@@ -48,6 +47,7 @@ hot_swappable <- c(
     "ico",
     "avif"
 )
+
 
 run_engine <- function(engine) {
     restart_pending <- FALSE

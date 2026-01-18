@@ -8,8 +8,7 @@ new_config <- function(...) {
     yml_port <- NULL
     yml_engine_type <- NULL
 
-    if (is_server_yml(dots$path)) {
-
+    if (is_server_yml(basename(dots$path))) {
         yml <- yaml::read_yaml(dots$path)
 
         yml_host <- yml$options$host
@@ -115,11 +114,11 @@ validate_config <- function(config) {
         error_invalid_dir(invalid)
     }
 
-    if (!is.numeric(config$port) &&length(config$port) != 1L) {
+    if (!is.numeric(config$port) || length(config$port) != 1L) {
         error_invalid_port(config$port)
     }
 
-    if (is.numeric(config$host && length(config$host) != 1L)) {
+    if (is.numeric(config$host) || length(config$host) != 1L) {
         error_invalid_host(config$host)
     }
 
@@ -155,9 +154,9 @@ is_config <- function(x) {
 
 is_server_yml <- function(path) {
     !is.null(path) &&
-       length(path) >= 1L &&
-        any(grepl(
-            utils::glob2rx("*_server.ya?ml"),
-            basename(path)
-        ))
+    length(path) >= 1L &&
+    any(grepl(
+        pattern = "*_server\\.ya?ml",
+        basename(path)
+    ))
 }
