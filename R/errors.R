@@ -6,6 +6,17 @@ new_hotwater_warning <- function(type) {
     sprintf("hotwater_%s_warning", type)
 }
 
+error_invalid_engine <- function(engine) {
+    cli::cli_abort(
+        c(
+            "Invalid engine: {.var {engine}}",
+            x = "Malformed _server.yml file. Missing/invalid 'engine' field."
+        ),
+        class = new_hotwater_error("invalid_path")
+    )
+}
+
+
 error_invalid_path <- function(path) {
     cli::cli_abort(
         c(

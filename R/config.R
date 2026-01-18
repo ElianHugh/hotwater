@@ -8,8 +8,10 @@ new_config <- function(...) {
     yml_port <- NULL
     yml_engine_type <- NULL
 
-    if (basename(dots$path[[1L]]) == "_server.yml") {
+    if (is_server_yml(dots$path)) {
+
         yml <- yaml::read_yaml(dots$path)
+
         yml_host <- yml$options$host
         yml_port <- yml$options$port
         yml_engine_type <- yml$engine
@@ -23,7 +25,6 @@ new_config <- function(...) {
 
     engine_type <- yml_engine_type %||%
         "plumber"
-
 
     host <- dots$host %||%
         yml_host %||%
@@ -73,6 +74,7 @@ new_config <- function(...) {
                     ".Rproj.user/*",
 
                     "*/.*"
+
                 ),
                 collapse = "|"
             )
@@ -120,6 +122,15 @@ validate_config <- function(config) {
     if (is.numeric(config$host)) {
         error_invalid_host(config$host)
     }
+
+    if (
+        is.null(config$engine) ||
+            !is.character(config$engine) ||
+            !nzchar(config$engine) ||
+            length(config$engine) > 1L
+    ) {
+        error_invalid_engine(config$engine)
+    }
 }
 
 #' it's possible to duplicate the port when it isn't immediately used
@@ -142,4 +153,11 @@ is_config <- function(x) {
     inherits(x, "hotwater_config")
 }
 
-
+is_server_yml <- function(path) {
+    !is.null(path) &&
+       length(path) >= 1L &&
+        any(grepl(
+            pattern = "^_server.ya?ml",
+            basename(path)
+        ))
+}
