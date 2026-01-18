@@ -13,14 +13,14 @@ new_runner <- function(engine) {
         dispatcher = FALSE,
         resilience = FALSE,
         autoexit = get_kill_signal(),
-        output = FALSE,
+        output = TRUE,
         .compute = spec$compute
     )
 
     engine$runner <- spawn_runner(engine, spec)
 
     i <- 0L
-    timeout <- 1000L
+    timeout <- 10L
 
     repeat {
         i <- i + 1L

@@ -16,7 +16,8 @@ Imports:
     mirai,
     utils,
     stats,
-    jsonlite
+    jsonlite,
+    yaml
 Suggests:
     box,
     docopt,

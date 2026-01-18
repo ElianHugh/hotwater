@@ -4,14 +4,37 @@
 new_config <- function(...) {
     dots <- list(...)
 
+    yml_host <- NULL
+    yml_port <- NULL
+    yml_engine_type <- NULL
 
-    # todo
+    if (basename(dots$path) == "_server.yml") {
+        yml <- yaml::read_yaml(dots$path)
+        yml_host <- yml$options$host
+        yml_port <- yml$options$port
+        yml_engine_type <- yml$engine
+    }
+
+    engine_type <- yml_engine_type %||%
+        "plumber"
+
+
     host <- dots$host %||%
-        plumber::get_option_or_env("plumber.host") %||%
+        yml_host %||%
+        if(engine_type == "plumber") {
+            plumber::get_option_or_env("plumber.host")
+         } else {
+            NULL
+         } %||%
         "127.0.0.1"
 
     port <- dots$port %||%
-        plumber::get_option_or_env("plumber.port") %||%
+        yml_port %||%
+        if (engine_type == "plumber") {
+            plumber::get_option_or_env("plumber.port")
+        } else {
+            NULL
+        } %||%
         new_port(host = host)
 
     ignore <- dots$ignore %||%
@@ -62,8 +85,7 @@ new_config <- function(...) {
             ),
             ignore = ignore,
             runner_compute = "hotwater_runner",
-            # todo
-            type = "plumber"
+            type = engine_type
         ),
         class = c("hotwater_config", "list")
     )
