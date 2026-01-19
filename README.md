@@ -14,7 +14,7 @@
 > [!NOTE]
 > This package is under active development and its functionality may change over time.
 
-- autoreload for plumber
+- autoreload for plumber & plumber2
 - auto-refresh the browser when a change is made
 - run hotwater from the commandline via included bash script
 

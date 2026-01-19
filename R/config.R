@@ -4,12 +4,45 @@
 new_config <- function(...) {
     dots <- list(...)
 
+    yml_host <- NULL
+    yml_port <- NULL
+    yml_engine_type <- NULL
+
+    if (is_server_yml(basename(dots$path))) {
+        yml <- yaml::read_yaml(dots$path)
+
+        yml_host <- yml$options$host
+        yml_port <- yml$options$port
+        yml_engine_type <- yml$engine
+
+        if (yml_engine_type == "plumber") {
+            # plumber only supports single entry file anyway
+            dir <- dirname(dots$path)
+            dots$path <- file.path(dir, yml$routes[[1L]])
+        }
+    }
+
+    engine_type <- yml_engine_type %||%
+        "plumber"
+
     host <- dots$host %||%
-        plumber::get_option_or_env("plumber.host") %||%
+        yml_host %||%
+        (if(engine_type == "plumber") {
+            plumber::get_option_or_env("plumber.host")
+         } else {
+            NULL
+        }) %||%
         "127.0.0.1"
+
     port <- dots$port %||%
-        plumber::get_option_or_env("plumber.port") %||%
+        yml_port %||%
+        (if (engine_type == "plumber") {
+            plumber::get_option_or_env("plumber.port")
+        } else {
+            NULL
+        }) %||%
         new_port(host = host)
+
     ignore <- dots$ignore %||%
         utils::glob2rx(
             paste(
@@ -40,6 +73,7 @@ new_config <- function(...) {
                     ".Rproj.user/*",
 
                     "*/.*"
+
                 ),
                 collapse = "|"
             )
@@ -57,7 +91,8 @@ new_config <- function(...) {
                 host = host
             ),
             ignore = ignore,
-            runner_compute = "hotwater_runner"
+            runner_compute = "hotwater_runner",
+            type = engine_type
         ),
         class = c("hotwater_config", "list")
     )
@@ -79,12 +114,21 @@ validate_config <- function(config) {
         error_invalid_dir(invalid)
     }
 
-    if (!is.numeric(config$port)) {
+    if (!is.numeric(config$port) || length(config$port) != 1L) {
         error_invalid_port(config$port)
     }
 
-    if (is.numeric(config$host)) {
+    if (is.numeric(config$host) || length(config$host) != 1L) {
         error_invalid_host(config$host)
+    }
+
+    if (
+        is.null(config$type) ||
+            !is.character(config$type) ||
+            !nzchar(config$type) ||
+            length(config$type) > 1L
+    ) {
+        error_invalid_engine_type(config$type)
     }
 }
 
@@ -106,4 +150,13 @@ new_port <- function(used, host = "127.0.0.1") {
 
 is_config <- function(x) {
     inherits(x, "hotwater_config")
+}
+
+is_server_yml <- function(path) {
+    !is.null(path) &&
+    length(path) >= 1L &&
+    any(grepl(
+        pattern = "*_server\\.ya?ml",
+        basename(path)
+    ))
 }

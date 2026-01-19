@@ -16,14 +16,75 @@ injection <- function(engine) {
     )
 }
 
+publish_browser_reload <- function(engine) {
+    json <- yyjsonr::write_json_str(
+        list(type = "HW::page")
+    )
+    nanonext::send(engine$publisher, json, mode = "raw")
+}
 
-middleware <- function(engine) {
+is_api_running <- function(engine) {
+    tryCatch(
+        expr = {
+            url <- sprintf(
+                "%s:%s/__hotwater__",
+                engine$config$host,
+                engine$config$port
+            )
+
+            req <- httr2::request(url)
+            resp <- httr2::req_perform(req)
+            status <- httr2::resp_status(resp)
+            content <- httr2::resp_body_string(resp)
+            content <- as.integer(content)
+
+            status == 200L && !is.na(content) && content == Sys.getpid()
+
+        },
+        error = function(e) {
+            FALSE
+        }
+    )
+}
+
+postserialise_hotwater <- function(js) {
+    function(value) {
+        if (length(value$error) > 0L) {
+            return(value)
+        }
+        if (grepl("text/html", value$headers[["Content-Type"]])) {
+            # nolint: nonportable_path_linter.
+            value$headers[["Cache-Control"]] <- "no-cache"
+            value$body <- paste(c(value$body, js), collapse = "\n")
+        }
+        value
+    }
+}
+
+middleware <- function(engine, ...) {
+    UseMethod("middleware")
+}
+
+#' @exportS3Method
+middleware.default <- function(engine, ...) {
+    stop("Unsupported engine type")
+}
+
+#' @exportS3Method
+middleware.plumber_engine <- function(engine, ...) {
+    if (!requireNamespace("plumber", quietly = TRUE)) {
+        stop(
+            "plumber is required but is not installed.",
+            call. = FALSE
+        )
+    }
+
+    pid <- Sys.getpid()
     js <- '<script src="/__hotwater__/client.js"></script>'
     js_path <- injection(engine)
 
-
     hook <- postserialise_hotwater(js)
-    pid <- Sys.getpid()
+
     function(pr) {
         # remove hotwater from the api spec
         plumber::pr_set_api_spec(pr, function(spec) {
@@ -61,45 +122,70 @@ middleware <- function(engine) {
     }
 }
 
-postserialise_hotwater <- function(js) {
-    function(value) {
-        if (length(value$error) > 0L) {
-            return(value)
-        }
-        if (grepl("text/html", value$headers[["Content-Type"]])) { # nolint: nonportable_path_linter.
-            value$headers[["Cache-Control"]] <- "no-cache"
-            value$body <- paste(c(value$body, js), collapse = "\n")
-        }
-        value
+#' @exportS3Method
+middleware.plumber2_engine <- function(engine, ...) {
+    if (!requireNamespace("plumber2", quietly = TRUE)) {
+        stop(
+            "plumber2 is required but is not installed.",
+            call. = FALSE
+        )
     }
-}
 
-publish_browser_reload <- function(engine) {
-    json <- jsonlite::toJSON(
-        list(type = "HW::page"),
-        auto_unbox = TRUE
-    )
-    nanonext::send(engine$publisher, json, mode="raw")
-}
+    pid <- Sys.getpid()
+    js <- '<script src="/__hotwater__/client.js"></script>'
+    js_path <- injection(engine)
 
-is_plumber_running <- function(engine) {
-    tryCatch(
-        expr = {
-            url <- sprintf(
-                "%s:%s/__hotwater__",
-                engine$config$host,
-                engine$config$port
-            )
+    plumber_html_serialiser <- plumber2::get_serializers("html")[[1L]]
 
-            req <- httr2::request(url)
-            resp <- httr2::req_perform(req)
-            status <- httr2::resp_status(resp)
-            content <- httr2::resp_body_string(resp)
+    function(api) {
+        plumber2::register_serializer(
+            "html",
+            function(...) {
+                function(x) {
+                    x <- plumber_html_serialiser(x)
+                    paste(as.character(unlist(c(x, js))), collapse = "\n")
+                }
+            },
+            mime_type = "text/html",
+            default = TRUE
+        )
 
-            status == 200L && as.integer(content) == Sys.getpid()
-        },
-        error = function(e) {
-            FALSE
-        }
-    )
+        plumber2::register_serializer(
+            name = "javascript",
+            function(...) {
+                function(x) {
+                    paste(as.character(unlist(x)), collapse = "\n")
+                }
+            },
+            mime_type = "application/javascript"
+        )
+
+        api <- plumber2::api_add_route(
+            api,
+            "__hotwater__",
+            after = 0L,
+            root = ""
+        )
+
+        api <- plumber2::api_get(
+            api,
+            path = "/__hotwater__",
+            handler = function(req, res) pid,
+            serializer = plumber2::get_serializers("text"),
+            route = "__hotwater__",
+            use_strict_serializer = FALSE
+        )
+        api <- plumber2::api_get(
+            api,
+            path = "/__hotwater__/client.js",
+            handler = function(response) {
+                response$set_header("Cache-Control", "no-store")
+                js_path
+            },
+            route = "__hotwater__",
+            serializer = plumber2::get_serializers("javascript")
+        )
+
+        api
+    }
 }

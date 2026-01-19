@@ -6,6 +6,7 @@ test_that("middleware injection works", {
             )
         )
     )
+    class(dummy_engine) <- "plumber_engine"
     expect_snapshot(injection(dummy_engine))
     fn <- middleware(dummy_engine)
     router <- fn(plumber::pr())
@@ -36,12 +37,12 @@ test_that("middleware injection works with filters", {
     )
 
     i <- 1L
-    while (i < 20L && !is_plumber_running(engine)) {
+    while (i < 20L && !is_api_running(engine)) {
         i <- i + 1L
         Sys.sleep(0.5)
     }
 
-    resp <- httr2::request(sprintf("localhost:%s/__hotwater__", engine$config$port)) |>
+    resp <- httr2::request(sprintf("http://localhost:%s/__hotwater__", engine$config$port)) |>
         httr2::req_perform() |>
         httr2::resp_status()
 
@@ -49,7 +50,7 @@ test_that("middleware injection works with filters", {
     cleanup_test_engine(engine)
 })
 
-test_that("is_plumber_running works", {
+test_that("is_api_running works", {
     engine <- new_test_engine()
     pid <- Sys.getpid()
     router <- mirai::mirai(
@@ -67,7 +68,7 @@ test_that("is_plumber_running works", {
         .compute = engine$config$runner_compute
     )
     i <- 1L
-    while (i < 20L && !is_plumber_running(engine)) {
+    while (i < 20L && !is_api_running(engine)) {
         i <- i + 1L
         Sys.sleep(0.5)
     }
@@ -81,7 +82,7 @@ test_that("autoreloader is attached", {
     new_runner(engine)
 
     i <- 1L
-    while (i < 20L && !is_plumber_running(engine)) {
+    while (i < 20L && !is_api_running(engine)) {
         i <- i + 1L
         Sys.sleep(0.5)
     }
