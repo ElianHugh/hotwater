@@ -97,7 +97,6 @@
     let ws = null;
     let everConnected = false;
 
-
     function startSocket() {
         if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
             return;
@@ -105,8 +104,6 @@
 
         ws = new WebSocket('%s', ['pub.sp.nanomsg.org']);
         ws.binaryType = "arraybuffer";
-
-
 
         ws.onopen = () => {
             if (everConnected) {
@@ -124,7 +121,7 @@
                 const text = new TextDecoder("utf-8").decode(u8);
                 const msg = JSON.parse(text);
 
-                switch (msg.type) {
+                switch (msg.type[0]) {
                     case "HW::resource": {
 
                         const targets = msg.targets.map((v) => {
@@ -169,14 +166,19 @@
 
         ws.onclose = (ev) => {
             ws = null;
+            if (document.visibilityState === "hidden") return;
+
             setTimeout(startSocket, 5000);
         }
 
-        ws.onerror = () => {
+        ws.onerror = (ev) => {
             console.warn("hotwater: error");
         }
     }
 
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") startSocket();
+    });
 
     startSocket();
 })();

@@ -112,12 +112,11 @@ run_engine <- function(engine) {
             isTRUE(hotswap_pending) &&
                 Sys.time() >= hotswap_due_at
         ) {
-            json <- jsonlite::toJSON(
+            json <- yyjsonr::write_json_str(
                 list(
                     type = "HW::resource",
                     targets = list(pending_hotswap_changes)
-                ),
-                auto_unbox = TRUE
+                )
             )
             nanonext::send(
                 engine$publisher,
@@ -173,6 +172,11 @@ buildup_engine <- function(engine) {
 
     if (engine$publisher$listener[[1L]][["state"]] != "started") {
         start(engine$publisher$listener[[1L]])
+    }
+
+    if (engine$publisher$listener[[1L]][["state"]] != "started") {
+        cli::cli_progress_done(result = "failed")
+        stop("Failed to start websocket.")
     }
 
     if (!res) {
@@ -242,12 +246,11 @@ drain_runner_log <- function(engine) {
             perl = TRUE
             )
             msg <- trimws(msg)
-            json <- jsonlite::toJSON(
+            json <- yyjsonr::write_json_str(
                 list(
                     type = "HW::error",
                     error = msg
-                ),
-                auto_unbox = TRUE
+                )
             )
 
             nanonext::send(

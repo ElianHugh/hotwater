@@ -11,7 +11,7 @@ function() {
         <link rel="stylesheet" href="./main.css"/>
     </head>
     <body>
-        <p>Hello, world!</p>
+        <p>Hello, world.</p>
     </body>
     </html>
     '

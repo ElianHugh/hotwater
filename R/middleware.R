@@ -17,9 +17,8 @@ injection <- function(engine) {
 }
 
 publish_browser_reload <- function(engine) {
-    json <- jsonlite::toJSON(
-        list(type = "HW::page"),
-        auto_unbox = TRUE
+    json <- yyjsonr::write_json_str(
+        list(type = "HW::page")
     )
     nanonext::send(engine$publisher, json, mode = "raw")
 }
@@ -131,8 +130,6 @@ middleware.plumber2_engine <- function(engine, ...) {
             call. = FALSE
         )
     }
-
-
 
     pid <- Sys.getpid()
     js <- '<script src="/__hotwater__/client.js"></script>'
