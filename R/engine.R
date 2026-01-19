@@ -181,13 +181,12 @@ buildup_engine <- function(engine) {
 
     if (!res) {
         cli::cli_progress_done(result = "failed")
-        stop("Failed to start server.")
-    } else {
-        publish_browser_reload(engine)
-        cli::cli_progress_done()
-        cli_watching_directory(engine)
-        drain_runner_log(engine)
     }
+
+    publish_browser_reload(engine)
+    cli::cli_progress_done()
+    cli_watching_directory(engine)
+    drain_runner_log(engine)
 }
 
 teardown_engine <- function(engine) {
