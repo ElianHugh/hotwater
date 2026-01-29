@@ -20,7 +20,7 @@ new_runner <- function(engine) {
     engine$runner <- spawn_runner(engine, spec)
 
     i <- 0L
-    timeout <- 10L
+    timeout <- 100L
 
     repeat {
         i <- i + 1L
