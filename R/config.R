@@ -29,7 +29,9 @@ new_config <- function(...) {
         yml_host %||%
         (if(engine_type == "plumber") {
             plumber::get_option_or_env("plumber.host")
-         } else {
+         } else if (engine_type == "plumber2") {
+            plumber2::get_opts("host")
+        } else {
             NULL
         }) %||%
         "127.0.0.1"
@@ -38,6 +40,8 @@ new_config <- function(...) {
         yml_port %||%
         (if (engine_type == "plumber") {
             plumber::get_option_or_env("plumber.port")
+        } else if (engine_type == "plumber2") {
+            plumber2::get_opts("port")
         } else {
             NULL
         }) %||%
@@ -63,6 +67,7 @@ new_config <- function(...) {
                     "*.git*",
                     ".git/*",
                     ".gitignore",
+                    ".gitattributes",
                     ".gitmodules",
 
                     # R
@@ -71,6 +76,10 @@ new_config <- function(...) {
                     ".RData",
                     ".Ruserdata",
                     ".Rproj.user/*",
+
+                    # Editor
+                    ".idea/",
+                    ".vscode/",
 
                     "*/.*"
 
