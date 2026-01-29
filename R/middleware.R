@@ -135,20 +135,8 @@ middleware.plumber2_engine <- function(engine, ...) {
     js <- '<script src="/__hotwater__/client.js"></script>'
     js_path <- injection(engine)
 
-    plumber_html_serialiser <- plumber2::get_serializers("html")[[1L]]
 
     function(api) {
-        plumber2::register_serializer(
-            "html",
-            function(...) {
-                function(x) {
-                    x <- plumber_html_serialiser(x)
-                    paste(as.character(unlist(c(x, js))), collapse = "\n")
-                }
-            },
-            mime_type = "text/html",
-            default = TRUE
-        )
 
         plumber2::register_serializer(
             name = "javascript",
@@ -167,6 +155,12 @@ middleware.plumber2_engine <- function(engine, ...) {
             root = ""
         )
 
+        api <- plumber2::api_add_route(
+            api,
+            "__hotwater_refresh__",
+            after = NULL
+        )
+
         api <- plumber2::api_get(
             api,
             path = "/__hotwater__",
@@ -175,6 +169,7 @@ middleware.plumber2_engine <- function(engine, ...) {
             route = "__hotwater__",
             use_strict_serializer = FALSE
         )
+
         api <- plumber2::api_get(
             api,
             path = "/__hotwater__/client.js",
@@ -184,6 +179,24 @@ middleware.plumber2_engine <- function(engine, ...) {
             },
             route = "__hotwater__",
             serializer = plumber2::get_serializers("javascript")
+        )
+
+        api <- plumber2::api_any(
+            api,
+            "/*",
+            handler = function(response) {
+                type <- response$type %||% ""
+                if (identical(type, "text/html")) {
+                    body <- response$body %||% "" |> response$formatter()
+                    js <- response$formatter(js)
+                    response$body <- paste0(body, js, collapse = "\n")
+                    plumber2::Break
+                } else {
+                    plumber2::Break
+                }
+            },
+            route = "__hotwater_refresh__",
+            serializers = NULL
         )
 
         api
