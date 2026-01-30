@@ -14,16 +14,18 @@ Imports:
     httr2,
     nanonext,
     mirai,
-    plumber (>= 0.4.0),
     utils,
     stats,
-    jsonlite
+    yyjsonr,
+    yaml
 Suggests:
     box,
     docopt,
     testthat (>= 3.0.0),
-    withr
+    withr,
+    plumber (>= 0.4.0),
+    plumber2
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3.9000

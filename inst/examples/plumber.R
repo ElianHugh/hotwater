@@ -5,13 +5,15 @@ list()
 #' @serializer html
 function() {
     '
-    <html>
+    <!DOCTYPE html>
+    <html lang="en-AU">
     <head>
         <link rel="stylesheet" href="./main.css"/>
     </head>
     <body>
-        <p>Hello, world!</p>
+        <p>Hello, world.</p>
     </body>
     </html>
     '
 }
+

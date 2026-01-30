@@ -16,7 +16,7 @@ If hotwater is installed, users may run \code{hotwater} from the command line
 rather than from an R terminal.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
  hotwater::install_hotwater()
 \dontshow{\}) # examplesIf}
 }

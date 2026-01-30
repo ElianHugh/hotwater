@@ -22,7 +22,11 @@ new_engine <- function(config) {
                 logpos = 0L
             )
         ),
-        class = c("hotwater_engine", "environment")
+        class = c(
+            "hotwater_engine",
+            "environment",
+            sprintf("%s_engine", config$type)
+        )
     )
 
     reg.finalizer(eng, function(e) {
@@ -44,6 +48,7 @@ hot_swappable <- c(
     "avif"
 )
 
+
 run_engine <- function(engine) {
     restart_pending <- FALSE
     restart_due_at <- NULL
@@ -64,8 +69,6 @@ run_engine <- function(engine) {
 
         is_hot_swappable <- length(exts) > 0L &&
             all(exts %in% hot_swappable)
-
-
 
         if (is_hot_swappable) {
             hotswap_pending <<- TRUE
@@ -109,12 +112,11 @@ run_engine <- function(engine) {
             isTRUE(hotswap_pending) &&
                 Sys.time() >= hotswap_due_at
         ) {
-            json <- jsonlite::toJSON(
+            json <- yyjsonr::write_json_str(
                 list(
                     type = "HW::resource",
                     targets = list(pending_hotswap_changes)
-                ),
-                auto_unbox = TRUE
+                )
             )
             nanonext::send(
                 engine$publisher,
@@ -172,15 +174,19 @@ buildup_engine <- function(engine) {
         start(engine$publisher$listener[[1L]])
     }
 
+    if (engine$publisher$listener[[1L]][["state"]] != "started") {
+        cli::cli_progress_done(result = "failed")
+        stop("Failed to start websocket.")
+    }
+
     if (!res) {
         cli::cli_progress_done(result = "failed")
-        stop("Failed to start Plumber server.")
-    } else {
-        publish_browser_reload(engine)
-        cli::cli_progress_done()
-        cli_watching_directory(engine)
-        drain_runner_log(engine)
     }
+
+    publish_browser_reload(engine)
+    cli::cli_progress_done()
+    cli_watching_directory(engine)
+    drain_runner_log(engine)
 }
 
 teardown_engine <- function(engine) {
@@ -239,12 +245,11 @@ drain_runner_log <- function(engine) {
             perl = TRUE
             )
             msg <- trimws(msg)
-            json <- jsonlite::toJSON(
+            json <- yyjsonr::write_json_str(
                 list(
                     type = "HW::error",
                     error = msg
-                ),
-                auto_unbox = TRUE
+                )
             )
 
             nanonext::send(
@@ -260,8 +265,6 @@ drain_runner_log <- function(engine) {
             data,
             perl = TRUE
         )
-
-
 
         data <- gsub(
             "=== HOTWATER_WARNING_BEGIN ===\\s*([\\s\\S]*?)\\s*=== HOTWATER_WARNING_END ===",

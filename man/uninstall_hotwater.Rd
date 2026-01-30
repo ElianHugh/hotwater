@@ -13,7 +13,7 @@ uninstall_hotwater(install_folder)
 Uninstall global hotwater script
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
  hotwater::uninstall_hotwater()
 \dontshow{\}) # examplesIf}
 }
