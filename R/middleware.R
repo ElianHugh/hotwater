@@ -39,7 +39,6 @@ is_api_running <- function(engine) {
             content <- as.integer(content)
 
             status == 200L && !is.na(content) && content == Sys.getpid()
-
         },
         error = function(e) {
             FALSE
@@ -135,9 +134,7 @@ middleware.plumber2_engine <- function(engine, ...) {
     js <- '<script src="/__hotwater__/client.js"></script>'
     js_path <- injection(engine)
 
-
     function(api) {
-
         plumber2::register_serializer(
             name = "javascript",
             function(...) {
@@ -186,10 +183,15 @@ middleware.plumber2_engine <- function(engine, ...) {
             "/*",
             handler = function(response) {
                 type <- response$type %||% ""
-                if (identical(type, "text/html")) {
-                    body <- response$body %||% "" |> response$formatter()
-                    js <- response$formatter(js)
+                is_html <- startsWith(tolower(type), "text/html")
+
+                if (is_html) {
+                    formatter <- plumber2::get_serializers("html")[[1L]]
+                    body <- response$body %||% "" |>
+                        formatter()
+                    js <- formatter(js)
                     response$body <- paste0(body, js, collapse = "\n")
+
                     plumber2::Break
                 } else {
                     plumber2::Break
