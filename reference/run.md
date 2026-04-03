@@ -34,7 +34,7 @@ run(path, dirs = NULL, port = NULL, host = NULL, ignore = NULL)
 
   If NULL, defaults to the `plumber.port` option. If the plumber option
   is undefined, the fallback value of
-  [`httpuv::randomPort()`](https://rdrr.io/pkg/httpuv/man/randomPort.html)
+  [`httpuv::randomPort()`](https://rstudio.github.io/httpuv/reference/randomPort.html)
   is used.
 
 - host:
