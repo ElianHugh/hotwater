@@ -47,10 +47,10 @@ new_config <- function(...) {
         }) %||%
         new_port(host = host)
 
-    ignore <- dots$ignore %||%
-        utils::glob2rx(
+    ignore <- utils::glob2rx(
             paste(
                 c(
+                    dots$ignore,
                     # dbs
                     "*.sqlite",
                     "*.sqlite3",

@@ -13,8 +13,7 @@ test_that("engine reuse", {
                 dirs = engine$config$dirs,
                 path = engine$config$entry_path,
                 port = engine$config$port,
-                host = engine$config$host,
-                ignore = engine$config$ignore
+                host = engine$config$host
             )
         )
     )
